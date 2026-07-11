@@ -6,6 +6,7 @@ import { logsApi } from '../../api/logs';
 import { watchlistApi } from '../../api/watchlist';
 import { posterUrl } from '../../lib/tmdbImage';
 import { StarRating } from '../../components/StarRating';
+import { ShareCard } from '../../components/ShareCard';
 import { ApiError } from '../../api/client';
 
 export function MovieDetail() {
@@ -41,6 +42,7 @@ export function MovieDetail() {
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [showLogForm, setShowLogForm] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   const invalidateLogRelated = () => {
     queryClient.invalidateQueries({ queryKey: ['logs'] });
@@ -140,6 +142,14 @@ export function MovieDetail() {
               Kaydı Sil
             </button>
           )}
+          {existingLog && (
+            <button
+              onClick={() => setShowShareCard(true)}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-surface border border-border hover:border-highlight"
+            >
+              Paylaş
+            </button>
+          )}
         </div>
 
         {existingLog && !showLogForm && (
@@ -204,6 +214,18 @@ export function MovieDetail() {
           </form>
         )}
       </div>
+
+      {showShareCard && existingLog && (
+        <ShareCard
+          title={movie.title}
+          year={movie.release_date?.slice(0, 4)}
+          posterPath={movie.poster_path}
+          rating={existingLog.rating}
+          review={existingLog.review}
+          watchedDate={existingLog.watched_date.slice(0, 10)}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
     </div>
   );
 }
