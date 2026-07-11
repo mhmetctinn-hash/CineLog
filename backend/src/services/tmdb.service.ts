@@ -32,3 +32,23 @@ export function searchMovies(query: string, page: number) {
 export function getMovieDetails(id: string) {
   return tmdbFetch(`/movie/${id}`, { append_to_response: "credits,videos" });
 }
+
+export function getMovieRecommendations(id: string) {
+  return tmdbFetch<{ results: TmdbListItem[] }>(`/movie/${id}/recommendations`, {});
+}
+
+export function discoverMoviesByGenre(genreId: number) {
+  return tmdbFetch<{ results: TmdbListItem[] }>("/discover/movie", {
+    with_genres: String(genreId),
+    sort_by: "vote_average.desc",
+    "vote_count.gte": "200",
+  });
+}
+
+export interface TmdbListItem {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date: string | null;
+  vote_average: number;
+}

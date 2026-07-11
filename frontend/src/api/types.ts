@@ -38,6 +38,14 @@ export interface MovieLog {
   collection_name: string | null;
 }
 
+export interface Recommendation {
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  voteAverage: number;
+  reason: string;
+}
+
 export interface LogStats {
   totalLogs: number;
   averageRating: number | null;

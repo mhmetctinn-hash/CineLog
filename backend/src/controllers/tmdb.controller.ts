@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { getMovieDetails, searchMovies, TmdbRequestError } from "../services/tmdb.service";
+import { getRecommendationsForUser } from "../services/recommendation.service";
 
 const searchSchema = z.object({
   query: z.string().min(1),
@@ -26,6 +27,11 @@ export async function search(req: Request, res: Response) {
     }
     throw err;
   }
+}
+
+export async function recommendations(req: Request, res: Response) {
+  const data = await getRecommendationsForUser(req.auth!.userId);
+  return res.json(data);
 }
 
 export async function details(req: Request, res: Response) {
