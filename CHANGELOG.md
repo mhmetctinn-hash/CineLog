@@ -89,12 +89,19 @@
 - Yeni `/stats` sayfası: özet kartları (toplam film, ortalama puan, favori tür, en yoğun ay), tür dağılımı için yatay bar chart, aylık aktivite için dikey bar chart, en yüksek puanlı filmler için poster ızgarası. Grafikler harici kütüphane kullanılmadan özel SVG/CSS ile yazıldı (Film Haritası'ndaki `react-force-graph-2d` uyumsuzluğu tekrarlanmasın diye), spesifikasyondaki marka renkleri (`#fcd116`, `#007bff`) kullanıldı.
 - Commit: "Add statistics dashboard page"
 
+### 10. Sosyal Paylaşım Kartı (PNG Export)
+- `html2canvas` kuruldu.
+- `frontend/src/components/ShareCard.tsx` — film posteri, başlık/yıl, yıldız puanı, inceleme alıntısı (220 karakterle sınırlı), izleme tarihi ve CineLog markası içeren sinematik bir kart; "PNG Olarak İndir" butonuyla tamamen client-side (backend'e görsel işleme yükü yok) PNG'ye render ediliyor.
+- `MovieDetail` sayfasına, mevcut bir log varsa görünen "Paylaş" butonu eklendi.
+- **Karşılaşılan sorun ve çözümü:** `<img crossOrigin="anonymous">` özniteliği TMDB CDN görselinin tarayıcıda hiç render edilmemesine yol açtı (`naturalWidth: 0`). Attribute kaldırıldı; `html2canvas`'ın kendi `useCORS: true` seçeneği görseli canvas'a aktarmak için yeterli.
+- Commit: "Add social share card PNG export"
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, ve İstatistik Paneli.
+- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, ve Sosyal Paylaşım Kartı.
 - Spesifikasyon belgesine (`cinelog_proje_dokumani claude.md`) göre henüz eksik olanlar:
   - **MVP:** "Yarım Bırakıldı" izleme durumu (şu an sadece İzlendi/İzlenecek var), spoiler bayraklı/zengin metin inceleme notu, cursor-based pagination.
-  - **2. Aşama:** Sosyal paylaşım kartı (PNG export), AI öneri motoru.
+  - **2. Aşama:** AI öneri motoru.
   - **Altyapı:** Rate limiting, test (Jest/Vitest/Playwright), CI/CD (GitHub Actions), Sentry, Gitflow (şu an her şey doğrudan `main`'e gidiyor).
 - **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, ya da çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
