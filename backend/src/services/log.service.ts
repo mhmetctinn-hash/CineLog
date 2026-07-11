@@ -1,5 +1,5 @@
 import { pool } from "../config/db";
-import type { MovieLog } from "../types/movie";
+import type { LogStatus, MovieLog } from "../types/movie";
 import { getOrCreateMovieByTmdbId } from "./movie.service";
 
 interface CreateLogInput {
@@ -8,16 +8,26 @@ interface CreateLogInput {
   rating?: number;
   review?: string;
   watchedDate?: string;
+  status?: LogStatus;
+  hasSpoilers?: boolean;
 }
 
 export async function createLog(input: CreateLogInput): Promise<MovieLog> {
   const movie = await getOrCreateMovieByTmdbId(input.tmdbId);
 
   const result = await pool.query<MovieLog>(
-    `INSERT INTO movie_logs (user_id, movie_id, rating, review, watched_date)
-     VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_DATE))
+    `INSERT INTO movie_logs (user_id, movie_id, rating, review, watched_date, status, has_spoilers)
+     VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_DATE), COALESCE($6, 'watched'), COALESCE($7, false))
      RETURNING *`,
-    [input.userId, movie.id, input.rating ?? null, input.review ?? null, input.watchedDate ?? null],
+    [
+      input.userId,
+      movie.id,
+      input.rating ?? null,
+      input.review ?? null,
+      input.watchedDate ?? null,
+      input.status ?? null,
+      input.hasSpoilers ?? null,
+    ],
   );
 
   return result.rows[0];
@@ -36,10 +46,69 @@ export async function listLogs(userId: string, tmdbId?: number) {
   return result.rows;
 }
 
+interface LogCursor {
+  watchedDate: string;
+  createdAt: string;
+  id: string;
+}
+
+export function encodeLogCursor(cursor: LogCursor): string {
+  return Buffer.from(JSON.stringify(cursor)).toString("base64url");
+}
+
+function decodeLogCursor(cursor: string): LogCursor {
+  return JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+}
+
+interface ListLogsPageInput {
+  userId: string;
+  status?: LogStatus;
+  cursor?: string;
+  limit?: number;
+}
+
+export async function listLogsPage(input: ListLogsPageInput) {
+  const limit = Math.min(Math.max(input.limit ?? 20, 1), 50);
+  const cursor = input.cursor ? decodeLogCursor(input.cursor) : null;
+
+  const result = await pool.query(
+    `SELECT movie_logs.*, movies.title, movies.poster_path, movies.tmdb_id,
+            movies.genre_ids, movies.collection_id, movies.collection_name
+     FROM movie_logs
+     JOIN movies ON movies.id = movie_logs.movie_id
+     WHERE movie_logs.user_id = $1
+       AND ($2::TEXT IS NULL OR movie_logs.status = $2)
+       AND (
+         $3::DATE IS NULL
+         OR (movie_logs.watched_date, movie_logs.created_at, movie_logs.id) < ($3, $4, $5)
+       )
+     ORDER BY movie_logs.watched_date DESC, movie_logs.created_at DESC, movie_logs.id DESC
+     LIMIT $6`,
+    [
+      input.userId,
+      input.status ?? null,
+      cursor?.watchedDate ?? null,
+      cursor?.createdAt ?? null,
+      cursor?.id ?? null,
+      limit + 1,
+    ],
+  );
+
+  const hasMore = result.rows.length > limit;
+  const items = result.rows.slice(0, limit);
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last ? encodeLogCursor({ watchedDate: last.watched_date, createdAt: last.created_at, id: last.id }) : null;
+
+  return { items, nextCursor };
+}
+
 interface UpdateLogInput {
   rating?: number;
   review?: string;
   watchedDate?: string;
+  status?: LogStatus;
+  hasSpoilers?: boolean;
 }
 
 export async function updateLog(userId: string, logId: string, input: UpdateLogInput): Promise<MovieLog | undefined> {
@@ -47,10 +116,20 @@ export async function updateLog(userId: string, logId: string, input: UpdateLogI
     `UPDATE movie_logs
      SET rating = COALESCE($3, rating),
          review = COALESCE($4, review),
-         watched_date = COALESCE($5, watched_date)
+         watched_date = COALESCE($5, watched_date),
+         status = COALESCE($6, status),
+         has_spoilers = COALESCE($7, has_spoilers)
      WHERE id = $1 AND user_id = $2
      RETURNING *`,
-    [logId, userId, input.rating ?? null, input.review ?? null, input.watchedDate ?? null],
+    [
+      logId,
+      userId,
+      input.rating ?? null,
+      input.review ?? null,
+      input.watchedDate ?? null,
+      input.status ?? null,
+      input.hasSpoilers ?? null,
+    ],
   );
   return result.rows[0];
 }
@@ -74,7 +153,7 @@ export async function getStats(userId: string) {
     `SELECT movie_logs.rating, movie_logs.watched_date, movies.genre_ids, movies.title, movies.poster_path, movies.tmdb_id
      FROM movie_logs
      JOIN movies ON movies.id = movie_logs.movie_id
-     WHERE movie_logs.user_id = $1
+     WHERE movie_logs.user_id = $1 AND movie_logs.status = 'watched'
      ORDER BY movie_logs.watched_date ASC`,
     [userId],
   );

@@ -10,7 +10,7 @@ jest.mock("../services/movie.service", () => ({
 
 import { pool } from "../config/db";
 import { getOrCreateMovieByTmdbId } from "../services/movie.service";
-import { createLog, deleteLog, listLogs, updateLog } from "../services/log.service";
+import { createLog, deleteLog, encodeLogCursor, listLogs, listLogsPage, updateLog } from "../services/log.service";
 
 const mockedQuery = pool.query as jest.Mock;
 const mockedGetOrCreateMovie = getOrCreateMovieByTmdbId as jest.Mock;
@@ -28,7 +28,7 @@ describe("log.service", () => {
     expect(log.id).toBe("log-1");
     const [sql, params] = mockedQuery.mock.calls[0];
     expect(sql).toContain("INSERT INTO movie_logs");
-    expect(params).toEqual(["user-1", "movie-1", 8, null, null]);
+    expect(params).toEqual(["user-1", "movie-1", 8, null, null, null, null]);
   });
 
   it("listLogs scopes the query to the given userId", async () => {
@@ -66,5 +66,53 @@ describe("log.service", () => {
     const result = await deleteLog("user-1", "log-1");
 
     expect(result).toBe(true);
+  });
+
+  describe("listLogsPage", () => {
+    it("returns no nextCursor when fewer rows than the limit come back", async () => {
+      mockedQuery.mockResolvedValueOnce({ rows: [{ id: "1", watched_date: "2026-01-01", created_at: "t1" }] });
+
+      const page = await listLogsPage({ userId: "user-1", limit: 5 });
+
+      expect(page.items).toHaveLength(1);
+      expect(page.nextCursor).toBeNull();
+      const [, params] = mockedQuery.mock.calls[0];
+      expect(params[params.length - 1]).toBe(6); // limit + 1
+    });
+
+    it("returns a nextCursor and trims the extra row when there are more results", async () => {
+      const rows = Array.from({ length: 6 }, (_, i) => ({
+        id: `id-${i}`,
+        watched_date: "2026-01-01",
+        created_at: `t${i}`,
+      }));
+      mockedQuery.mockResolvedValueOnce({ rows });
+
+      const page = await listLogsPage({ userId: "user-1", limit: 5 });
+
+      expect(page.items).toHaveLength(5);
+      expect(page.nextCursor).not.toBeNull();
+    });
+
+    it("decodes a cursor into the row-comparison parameters", async () => {
+      mockedQuery.mockResolvedValueOnce({ rows: [] });
+      const cursor = encodeLogCursor({ watchedDate: "2026-01-01", createdAt: "2026-01-01T00:00:00Z", id: "abc" });
+
+      await listLogsPage({ userId: "user-1", cursor });
+
+      const [, params] = mockedQuery.mock.calls[0];
+      expect(params[2]).toBe("2026-01-01");
+      expect(params[3]).toBe("2026-01-01T00:00:00Z");
+      expect(params[4]).toBe("abc");
+    });
+
+    it("filters by status when provided", async () => {
+      mockedQuery.mockResolvedValueOnce({ rows: [] });
+
+      await listLogsPage({ userId: "user-1", status: "dropped" });
+
+      const [, params] = mockedQuery.mock.calls[0];
+      expect(params[1]).toBe("dropped");
+    });
   });
 });

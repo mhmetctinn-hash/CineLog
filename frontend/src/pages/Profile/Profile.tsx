@@ -1,29 +1,45 @@
 import { useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { logsApi } from '../../api/logs';
 import { MovieCard } from '../../components/MovieCard';
 import { StarRating } from '../../components/StarRating';
+import type { LogStatus } from '../../api/types';
 
 type SortOption = 'date_desc' | 'date_asc' | 'rating_desc' | 'rating_asc';
+type StatusFilter = LogStatus | 'all';
+
+const STATUS_LABEL: Record<LogStatus, string> = {
+  watched: 'İzledim',
+  dropped: 'Yarım Bıraktım',
+};
 
 export function Profile() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<SortOption>('date_desc');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const { data: logs, isLoading } = useQuery({
-    queryKey: ['logs'],
-    queryFn: () => logsApi.list(),
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ['logs-page', statusFilter],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+      logsApi.page({ status: statusFilter === 'all' ? undefined : statusFilter, cursor: pageParam, limit: 20 }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
+
+  const logs = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
 
   const deleteLog = useMutation({
     mutationFn: (id: string) => logsApi.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['logs'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['logs-page'] });
+      queryClient.invalidateQueries({ queryKey: ['logs'] });
+      queryClient.invalidateQueries({ queryKey: ['logs-stats'] });
+    },
   });
 
   const filteredLogs = useMemo(() => {
-    if (!logs) return [];
     const term = search.trim().toLowerCase();
     const filtered = logs.filter((log) => {
       const matchesSearch = !term || log.title.toLowerCase().includes(term);
@@ -50,7 +66,7 @@ export function Profile() {
     return <p className="text-text-muted text-center mt-12">Yükleniyor...</p>;
   }
 
-  if (!logs || logs.length === 0) {
+  if (logs.length === 0) {
     return <p className="text-text-muted text-center mt-12">Henüz hiç film loglamadınız.</p>;
   }
 
@@ -68,6 +84,19 @@ export function Profile() {
             placeholder="Başlıkta ara..."
             className="px-2 py-1 rounded border border-border bg-surface text-sm"
           />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-text-muted">Durum</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className="px-2 py-1 rounded border border-border bg-surface text-sm"
+          >
+            <option value="all">Hepsi</option>
+            <option value="watched">{STATUS_LABEL.watched}</option>
+            <option value="dropped">{STATUS_LABEL.dropped}</option>
+          </select>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -111,6 +140,13 @@ export function Profile() {
               subtitle={log.watched_date.slice(0, 10)}
               actions={
                 <div className="flex flex-col gap-2">
+                  <span
+                    className={`text-[10px] w-fit px-1.5 py-0.5 rounded-full font-medium ${
+                      log.status === 'dropped' ? 'bg-border text-text-muted' : 'bg-accent/20 text-accent'
+                    }`}
+                  >
+                    {STATUS_LABEL[log.status]}
+                  </span>
                   <StarRating value={log.rating} readOnly />
                   <button
                     onClick={() => deleteLog.mutate(log.id)}
@@ -122,6 +158,18 @@ export function Profile() {
               }
             />
           ))}
+        </div>
+      )}
+
+      {hasNextPage && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="px-4 py-2 rounded-md text-sm font-medium bg-surface border border-border hover:border-accent disabled:opacity-50"
+          >
+            {isFetchingNextPage ? 'Yükleniyor...' : 'Daha Fazla Yükle'}
+          </button>
         </div>
       )}
     </div>

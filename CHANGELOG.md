@@ -115,9 +115,19 @@
 
 ---
 
+### 13. Yarım Bırakıldı Durumu, Spoiler/Zengin Metin İnceleme, Cursor-Based Pagination
+- Migration `004_add_status_spoiler.sql` — `movie_logs`'a `status` (`'watched' | 'dropped'`, varsayılan `'watched'`) ve `has_spoilers` (boolean) eklendi.
+- **Durum:** `MovieDetail` log formunda "İzledim" / "Yarım Bıraktım" seçici; `Profile` sayfasında durum filtresi (Hepsi/İzledim/Yarım Bıraktım — backend'de filtreleniyor). İstatistik hesaplamaları (`getStats`) sadece `status = 'watched'` olan logları sayıyor.
+- **Spoiler + zengin metin:** İnceleme formuna "spoiler içeriyor" onay kutusu eklendi; spoiler işaretli incelemeler `SpoilerGuard` ile gizleniyor, tıklayınca açılıyor. Zengin metin için harici bir editör yerine güvenli, minimal bir `**kalın**`/`*italik*`/satır sonu render'ı (`ReviewText.tsx`) yazıldı — HTML parse etmediği için XSS yüzeyi yok.
+- **Cursor-based pagination:** `GET /api/logs/page` — `(watched_date, created_at, id)` üzerinden satır karşılaştırmalı (row-wise comparison) cursor, base64url ile encode/decode ediliyor. `Profile` sayfası `useInfiniteQuery` ile bu endpoint'i kullanıyor, "Daha Fazla Yükle" butonuyla sonraki sayfayı çekiyor.
+- Backend testlerine `listLogsPage` için 4 yeni test eklendi (toplam 25 test, hepsi geçiyor); frontend build ve mevcut testler (8) yeşil.
+- Tarayıcıda uçtan uca doğrulandı: durum değişimi, spoiler gizle/göster, kalın/italik render, durum filtresi, ve stats'ın yarım bırakılan filmi hariç tutması.
+- Spesifikasyon (`cinelog_proje_dokumani claude.md`) MVP bölümündeki tüm maddeler artık tamamlandı.
+- Commit: "Add watch status, spoiler-flagged rich text reviews, and cursor pagination" (`feature/status-spoiler-pagination` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, ve altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow).
-- Spesifikasyon belgesine (`cinelog_proje_dokumani claude.md`) göre henüz eksik olanlar:
-  - **MVP:** "Yarım Bırakıldı" izleme durumu (şu an sadece İzlendi/İzlenecek var), spoiler bayraklı/zengin metin inceleme notu, cursor-based pagination.
-- **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, gerçek bir Sentry projesi bağlanması (DSN eklenmesi), veya çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti.** Roadmap 1-5: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist (durum + spoiler + zengin metin dahil), frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri (cursor pagination dahil), İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, ve altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow).
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (Service Worker + IndexedDB senkronizasyonu — bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.

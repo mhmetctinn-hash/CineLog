@@ -22,6 +22,8 @@ export interface TmdbMovieDetail extends TmdbMovieSummary {
   genres: { id: number; name: string }[];
 }
 
+export type LogStatus = 'watched' | 'dropped';
+
 export interface MovieLog {
   id: string;
   user_id: string;
@@ -30,12 +32,19 @@ export interface MovieLog {
   rating: number | null;
   review: string | null;
   watched_date: string;
+  status: LogStatus;
+  has_spoilers: boolean;
   created_at: string;
   title: string;
   poster_path: string | null;
   genre_ids: number[];
   collection_id: number | null;
   collection_name: string | null;
+}
+
+export interface MovieLogPage {
+  items: MovieLog[];
+  nextCursor: string | null;
 }
 
 export interface Recommendation {

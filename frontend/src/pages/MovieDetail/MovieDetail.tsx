@@ -7,7 +7,15 @@ import { watchlistApi } from '../../api/watchlist';
 import { posterUrl } from '../../lib/tmdbImage';
 import { StarRating } from '../../components/StarRating';
 import { ShareCard } from '../../components/ShareCard';
+import { ReviewText } from '../../components/ReviewText';
+import { SpoilerGuard } from '../../components/SpoilerGuard';
 import { ApiError } from '../../api/client';
+import type { LogStatus } from '../../api/types';
+
+const STATUS_LABEL: Record<LogStatus, string> = {
+  watched: 'İzledim',
+  dropped: 'Yarım Bıraktım',
+};
 
 export function MovieDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,12 +48,16 @@ export function MovieDetail() {
   const [watchedDate, setWatchedDate] = useState(
     existingLog?.watched_date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
   );
+  const [status, setStatus] = useState<LogStatus>(existingLog?.status ?? 'watched');
+  const [hasSpoilers, setHasSpoilers] = useState(existingLog?.has_spoilers ?? false);
   const [formError, setFormError] = useState<string | null>(null);
   const [showLogForm, setShowLogForm] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
 
   const invalidateLogRelated = () => {
     queryClient.invalidateQueries({ queryKey: ['logs'] });
+    queryClient.invalidateQueries({ queryKey: ['logs-page'] });
+    queryClient.invalidateQueries({ queryKey: ['logs-stats'] });
   };
 
   const saveLog = useMutation({
@@ -55,12 +67,16 @@ export function MovieDetail() {
             rating: rating ?? undefined,
             review: review || undefined,
             watchedDate,
+            status,
+            hasSpoilers,
           })
         : logsApi.create({
             tmdbId,
             rating: rating ?? undefined,
             review: review || undefined,
             watchedDate,
+            status,
+            hasSpoilers,
           }),
     onSuccess: () => {
       invalidateLogRelated();
@@ -131,7 +147,7 @@ export function MovieDetail() {
               existingLog ? 'bg-primary text-white' : 'bg-surface border border-border hover:border-primary'
             }`}
           >
-            {existingLog ? 'İzleme Kaydını Düzenle' : 'İzledim'}
+            {existingLog ? 'İzleme Kaydını Düzenle' : 'İzledim / Yarım Bıraktım'}
           </button>
           {existingLog && (
             <button
@@ -154,8 +170,26 @@ export function MovieDetail() {
 
         {existingLog && !showLogForm && (
           <div className="mt-4 bg-surface border border-border rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  existingLog.status === 'dropped' ? 'bg-border text-text-muted' : 'bg-accent/20 text-accent'
+                }`}
+              >
+                {STATUS_LABEL[existingLog.status]}
+              </span>
+            </div>
             <StarRating value={existingLog.rating} readOnly />
-            {existingLog.review && <p className="mt-2 text-sm">{existingLog.review}</p>}
+            {existingLog.review &&
+              (existingLog.has_spoilers ? (
+                <div className="mt-2">
+                  <SpoilerGuard>
+                    <ReviewText text={existingLog.review} className="text-sm" />
+                  </SpoilerGuard>
+                </div>
+              ) : (
+                <ReviewText text={existingLog.review} className="mt-2 text-sm" />
+              ))}
             <p className="mt-2 text-xs text-text-muted">
               İzleme tarihi: {existingLog.watched_date.slice(0, 10)}
             </p>
@@ -171,6 +205,23 @@ export function MovieDetail() {
             className="mt-4 bg-surface border border-border rounded-lg p-4 flex flex-col gap-4"
           >
             <div>
+              <label className="text-sm text-text-muted block mb-1">Durum</label>
+              <div className="flex gap-2">
+                {(['watched', 'dropped'] as LogStatus[]).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      status === s ? 'bg-primary text-white' : 'bg-base border border-border text-text-muted'
+                    }`}
+                  >
+                    {STATUS_LABEL[s]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
               <label className="text-sm text-text-muted block mb-1">Puan</label>
               <StarRating value={rating} onChange={setRating} />
             </div>
@@ -184,7 +235,9 @@ export function MovieDetail() {
               />
             </div>
             <div>
-              <label className="text-sm text-text-muted block mb-1">İnceleme</label>
+              <label className="text-sm text-text-muted block mb-1">
+                İnceleme <span className="text-text-muted font-normal">(**kalın**, *italik* desteklenir)</span>
+              </label>
               <textarea
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
@@ -194,6 +247,15 @@ export function MovieDetail() {
                 className="w-full bg-base border border-border rounded-md px-3 py-2 outline-none focus:border-accent resize-none"
               />
             </div>
+            <label className="flex items-center gap-2 text-sm text-text-muted">
+              <input
+                type="checkbox"
+                checked={hasSpoilers}
+                onChange={(e) => setHasSpoilers(e.target.checked)}
+                className="accent-primary"
+              />
+              Bu inceleme spoiler içeriyor
+            </label>
             {formError && <p className="text-sm text-primary">{formError}</p>}
             <div className="flex gap-2">
               <button
