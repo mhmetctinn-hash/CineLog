@@ -60,3 +60,7 @@ export async function logout(_req: Request, res: Response) {
   res.clearCookie("token", COOKIE_OPTIONS);
   return res.status(204).send();
 }
+
+export async function me(req: Request, res: Response) {
+  return res.json({ email: req.auth!.email });
+}
