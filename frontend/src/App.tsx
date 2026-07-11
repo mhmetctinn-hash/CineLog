@@ -8,6 +8,7 @@ import { MovieDetail } from './pages/MovieDetail/MovieDetail';
 import { Profile } from './pages/Profile/Profile';
 import { Watchlist } from './pages/Watchlist/Watchlist';
 import { MovieMap } from './pages/Map/Map';
+import { Stats } from './pages/Stats/Stats';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/map" element={<MovieMap />} />
+          <Route path="/stats" element={<Stats />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

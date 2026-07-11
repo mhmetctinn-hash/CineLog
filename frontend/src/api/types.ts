@@ -38,6 +38,14 @@ export interface MovieLog {
   collection_name: string | null;
 }
 
+export interface LogStats {
+  totalLogs: number;
+  averageRating: number | null;
+  genreCounts: { genreId: number; count: number }[];
+  monthlyCounts: { month: string; count: number }[];
+  topRated: { tmdbId: number; title: string; posterPath: string | null; rating: number | null }[];
+}
+
 export interface WatchlistItem {
   id: string;
   user_id: string;

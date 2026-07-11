@@ -38,6 +38,9 @@ export function Layout() {
               <NavLink to="/map" className={navLinkClass}>
                 Harita
               </NavLink>
+              <NavLink to="/stats" className={navLinkClass}>
+                İstatistik
+              </NavLink>
               <button
                 onClick={handleLogout}
                 className="px-3 py-2 rounded-md text-sm font-medium text-text-muted hover:text-primary hover:bg-surface transition-colors"

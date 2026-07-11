@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { createLog, deleteLog, listLogs, updateLog } from "../services/log.service";
+import { createLog, deleteLog, getStats, listLogs, updateLog } from "../services/log.service";
 
 const createLogSchema = z.object({
   tmdbId: z.number().int().positive(),
@@ -50,6 +50,11 @@ export async function update(req: Request, res: Response) {
     return res.status(404).json({ error: "Log not found" });
   }
   return res.json(log);
+}
+
+export async function stats(req: Request, res: Response) {
+  const data = await getStats(req.auth!.userId);
+  return res.json(data);
 }
 
 export async function remove(req: Request, res: Response) {
