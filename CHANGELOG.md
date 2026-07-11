@@ -181,7 +181,17 @@
 
 ---
 
+### 19. Logo: Tek Parça Halinde Süpüren Işık
+- Kullanıcı geri bildirimi: parlak ışık sadece "Log" kelimesinde kalıyordu, tüm logoyu (ikon + yazı) tek parça halinde aydınlatıp gezmesi istendi.
+- "Cine" ve "Log"un kendi ayrı animasyonları (nabız gibi kırmızı parıltı / kayan altın-mavi gradyan) kaldırıldı, ikisi de sabit renkli + sabit hafif parıltılı (statik `text-shadow`) hale getirildi.
+- Yerine `.logo-shine-viewport` (ikon+yazıyı saran, `overflow: hidden` + `isolation: isolate` içeren bir kapsayıcı) ve içinde `mix-blend-mode: overlay` ile karışan, eğik (skew) bir beyaz ışık bandı olan `.logo-sheen` eklendi — bu tek ışık huzmesi `logo-sheen-sweep` animasyonuyla ikonun ve yazının **tamamının üzerinden** sürekli geçiyor (hover'a bağlı değil, her zaman çalışıyor).
+- Hover'daki koşan silüet efektinin kırpılmaması için kapsayıcıya `pb-3 -mb-3` (padding + negatif margin) eklendi — `overflow: hidden` klipleme kutusunu, silüetin yazının altına taştığı kadar genişletiyor ama sayfa düzenini etkilemiyor.
+- Tarayıcıda doğrulandı: `.logo-sheen`'in `transform` değeri 1 saniye arayla ölçülüp gerçekten hareket ettiği teyit edildi (39px → 124px); hover'daki klaket kapanma ve koşan silüet animasyonları bozulmadı.
+- Commit: "Sweep a single light band across the whole logo instead of per-word effects" (`feature/logo-unified-sheen` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve Trabzonspor renkli animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve Trabzonspor renkli, tek parça ışık süpüren animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
 - Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı. Vite dev server garip/eski davranış sergilerse (değişiklikler yansımıyorsa), önce `node_modules/.vite` silinip sunucu yeniden başlatılmalı — bu oturumda birkaç kez işe yaradı.
