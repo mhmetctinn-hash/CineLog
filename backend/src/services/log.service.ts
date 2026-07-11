@@ -25,7 +25,8 @@ export async function createLog(input: CreateLogInput): Promise<MovieLog> {
 
 export async function listLogs(userId: string, tmdbId?: number) {
   const result = await pool.query(
-    `SELECT movie_logs.*, movies.title, movies.poster_path, movies.tmdb_id
+    `SELECT movie_logs.*, movies.title, movies.poster_path, movies.tmdb_id,
+            movies.genre_ids, movies.collection_id, movies.collection_name
      FROM movie_logs
      JOIN movies ON movies.id = movie_logs.movie_id
      WHERE movie_logs.user_id = $1 AND ($2::INTEGER IS NULL OR movies.tmdb_id = $2)

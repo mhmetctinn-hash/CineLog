@@ -5,6 +5,9 @@ export interface Movie {
   poster_path: string | null;
   release_date: string | null;
   overview: string | null;
+  genre_ids: number[];
+  collection_id: number | null;
+  collection_name: string | null;
   created_at: Date;
 }
 

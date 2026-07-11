@@ -7,6 +7,7 @@ import { Search } from './pages/Search/Search';
 import { MovieDetail } from './pages/MovieDetail/MovieDetail';
 import { Profile } from './pages/Profile/Profile';
 import { Watchlist } from './pages/Watchlist/Watchlist';
+import { MovieMap } from './pages/Map/Map';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/map" element={<MovieMap />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

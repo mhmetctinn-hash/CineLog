@@ -33,6 +33,9 @@ export interface MovieLog {
   created_at: string;
   title: string;
   poster_path: string | null;
+  genre_ids: number[];
+  collection_id: number | null;
+  collection_name: string | null;
 }
 
 export interface WatchlistItem {
