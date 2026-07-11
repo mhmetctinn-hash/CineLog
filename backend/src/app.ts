@@ -3,7 +3,9 @@ import cors from "cors";
 import express from "express";
 import { requireAuth } from "./middleware/requireAuth";
 import { authRouter } from "./routes/auth.routes";
+import { logRouter } from "./routes/log.routes";
 import { tmdbRouter } from "./routes/tmdb.routes";
+import { watchlistRouter } from "./routes/watchlist.routes";
 
 export const app = express();
 
@@ -17,6 +19,8 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/tmdb", tmdbRouter);
+app.use("/api/logs", logRouter);
+app.use("/api/watchlist", watchlistRouter);
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ email: req.auth?.email });
