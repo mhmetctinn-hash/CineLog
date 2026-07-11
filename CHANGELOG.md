@@ -104,11 +104,20 @@
 - Gerçek test verisiyle doğrulandı (Godfather → Godfather Part II/GoodFellas/Casino, Fight Club → Requiem for a Dream/Trainspotting, Passengers → Interstellar/Her gibi mantıklı eşleşmeler).
 - Commit: "Add AI-style recommendation engine"
 
+### 12. Altyapı Sertleştirme: Rate Limiting, Testler, CI/CD, Sentry, Gitflow
+- **Rate limiting:** `express-rate-limit` — `/api` altında IP başına dakikada 100 istek, `/api/auth` altında (brute-force'u yavaşlatmak için) dakikada 10 istek.
+- **Backend testleri:** Jest + Supertest, `pool.query` mock'lanarak gerçek veritabanına ihtiyaç duymadan. Kapsam: auth (kayıt/giriş/`me`, 401'ler, şifre asla düz metin saklanmıyor), log CRUD'unun kullanıcı sahipliğine göre sınırlanması, TMDB proxy'sinin auth zorunluluğu ve API anahtarının response'a asla sızmaması.
+- **Frontend testleri:** Vitest + Testing Library — `StarRating`'in puan matematiği (1-10 ölçek ↔ 5 yıldız) ve TMDB poster URL yardımcı fonksiyonu.
+- **CI/CD:** `.github/workflows/ci.yml` — `main` ve `develop`'a push/PR'da backend (typecheck + test) ve frontend (lint + typecheck + test) paralel job olarak çalışıyor.
+- **Sentry:** `@sentry/node` ve `@sentry/react`, `SENTRY_DSN`/`VITE_SENTRY_DSN` ortam değişkeni verilmezse tamamen no-op (DSN gerektirmiyor, kurulum zorunlu değil). Backend'e global hata middleware'i + `unhandledRejection`/`uncaughtException` yakalayıcıları eklendi (Express 4 async hataları otomatik iletmediği için). Frontend `App`'i bir `Sentry.ErrorBoundary` ile sarmalıyor.
+- **Gitflow:** `develop` branch'i oluşturuldu; bu değişiklikler `feature/infra-hardening` dalında yapılıp `develop`'a, oradan da `main`'e merge edildi. Bundan sonraki özellikler `develop`'tan açılan `feature/*` dallarında geliştirilip PR ile birleştirilecek.
+- Commit: "Add rate limiting, test suites, CI, and Sentry error tracking"
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, Sosyal Paylaşım Kartı, ve Öneri Motoru.
+- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, ve altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow).
 - Spesifikasyon belgesine (`cinelog_proje_dokumani claude.md`) göre henüz eksik olanlar:
   - **MVP:** "Yarım Bırakıldı" izleme durumu (şu an sadece İzlendi/İzlenecek var), spoiler bayraklı/zengin metin inceleme notu, cursor-based pagination.
-  - **Altyapı:** Rate limiting, test (Jest/Vitest/Playwright), CI/CD (GitHub Actions), Sentry, Gitflow (şu an her şey doğrudan `main`'e gidiyor).
-- **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, ya da çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
+- **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, gerçek bir Sentry projesi bağlanması (DSN eklenmesi), veya çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
+- **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.
