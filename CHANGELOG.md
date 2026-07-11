@@ -127,7 +127,17 @@
 
 ---
 
+### 14. Kategori Navigasyonu ve Fragmanlar
+- `GET /api/tmdb/discover?genre=&page=` — TMDB'nin discover endpoint'ini popülerliğe göre sıralayıp proxy'liyor (min oy sayısı filtresiyle düşük kaliteli sonuçlar eleniyor).
+- Header'a **"Kategoriler"** açılır menüsü eklendi (tüm TMDB türleri, `lib/genres.ts`'teki mevcut listeden), her tür `/category/:genreId` sayfasına gidiyor — sayfalamalı film ızgarası.
+- **Fragman:** `getMovieDetails` zaten `append_to_response=videos` ile TMDB'den fragman verisini çekiyordu, sadece frontend'e hiç yansıtılmamıştı. `MovieDetail` sayfasına gömülü YouTube oynatıcı eklendi; `pickBestTrailer` önce TMDB'de Türkçe (`iso_639_1: 'tr'`) video varsa onu, yoksa en resmi fragmanı seçiyor. YouTube embed'ine `cc_lang_pref=tr` parametresi eklendi (fragmanın kendisi Türkçe değilse oynatıcının CC/altyazı düğmesinden değiştirilebileceğine dair bir not gösteriliyor). Tamamen TMDB'nin ücretsiz API'si üzerinden, ek/ücretli bir servise ihtiyaç yok.
+- Tarayıcıda doğrulandı: kategori menüsü açılıyor, "Korku" kategorisi popüler filmleri sayfalı listeliyor, Fight Club'ın fragmanı oynatıcıda görünüyor.
+- Commit: "Add category navigation and movie trailers" (`feature/categories-trailers` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti.** Roadmap 1-5: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist (durum + spoiler + zengin metin dahil), frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri (cursor pagination dahil), İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, ve altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow).
-- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (Service Worker + IndexedDB senkronizasyonu — bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu ve fragman özellikleri eklendi. Roadmap 1-5: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist (durum + spoiler + zengin metin dahil), frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri (cursor pagination dahil), İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow), kategori navigasyonu, fragmanlar.
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
+- **Sıradaki büyük özellik: Dizi (TV series) entegrasyonu** — kullanıcı tarafından talep edildi, henüz başlanmadı. TMDB'nin `/tv` endpoint'leri (arama, detay, `/discover/tv`) kullanılacak; muhtemelen mevcut `movies` tablosundan ayrı bir `tv_shows`/`tv_logs` şeması veya polymorphic bir yaklaşım gerekecek — mimari karar henüz verilmedi.
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.
