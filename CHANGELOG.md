@@ -171,7 +171,17 @@
 
 ---
 
+### 18. Logo Renkleri: Trabzonspor Esintili
+- Logo'nun renk paleti Trabzonspor'un bordo-mavi kimliğine çekildi — **sadece logoya özel**, sitenin geri kalanındaki spesifikasyon kaynaklı sinematik palete (`#121824`/`#D61C2C`/`#FCD116`) dokunulmadı.
+- `.logo-mark` içinde scoped CSS custom property'ler: `--ts-bordo: #7a1f3d`, `--ts-bordo-bright: #b23a5d`, `--ts-blue: #1c4f9c`, `--ts-blue-bright: #6fa8ff`.
+- "Cine" artık bordo tonunda parıldıyor, "Log" mavi tonunda parlıyor; klaket ikonunun çizgili deseni ve kenarlıkları bordo/mavi, hover'daki koşan silüet bordo renginde.
+- **Karşılaşılan sorun:** Değişiklik sonrası tarayıcıda hem eski sekmede hem yeni açılan sekmede logo eski haliyle (animasyonsuz, sade "CineLog" yazısı) göründü. `curl` ile Vite dev server'ın ham çıktısı incelendiğinde `Layout.tsx`'in derlenmiş halinde `Logo` import'unun hiç olmadığı görüldü — bu bir tarayıcı önbelleği değil, **Vite'ın transform önbelleğinin bayatlamasıydı** (dosya değişikliği HMR event'i tetikliyordu ama sunucu hâlâ eski derlenmiş içeriği dönüyordu). `node_modules/.vite` silinip dev server yeniden başlatılarak çözüldü.
+- Tarayıcıda doğrulandı: `--ts-bordo`/`--ts-blue` CSS değişkenleri doğru değerlerde, "Cine" rengi `rgb(122, 31, 61)`, hover'da `clap-swing`/`runner-dash` animasyonları ve koşan silüetin bordo dolgusu teyit edildi.
+- Commit: "Recolor the logo with a Trabzonspor claret-and-blue palette" (`feature/trabzonspor-logo-colors` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve Trabzonspor renkli animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
 - Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
-- **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.
+- **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı. Vite dev server garip/eski davranış sergilerse (değişiklikler yansımıyorsa), önce `node_modules/.vite` silinip sunucu yeniden başlatılmalı — bu oturumda birkaç kez işe yaradı.

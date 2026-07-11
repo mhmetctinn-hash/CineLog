@@ -16,9 +16,17 @@ html {
   color-scheme: dark;
 }
 
+.logo-mark {
+  /* Trabzonspor-inspired claret (bordo) + blue, scoped to the logo only */
+  --ts-bordo: #7a1f3d;
+  --ts-bordo-bright: #b23a5d;
+  --ts-blue: #1c4f9c;
+  --ts-blue-bright: #6fa8ff;
+}
+
 @keyframes cine-glow {
-  0%, 100% { text-shadow: 0 0 6px rgba(214, 28, 44, 0.35); }
-  50% { text-shadow: 0 0 14px rgba(214, 28, 44, 0.75); }
+  0%, 100% { text-shadow: 0 0 6px rgba(122, 31, 61, 0.4); }
+  50% { text-shadow: 0 0 14px rgba(122, 31, 61, 0.85); }
 }
 
 @keyframes log-shimmer {
@@ -47,12 +55,12 @@ html {
 }
 
 .cine-text {
-  color: var(--color-primary);
+  color: var(--ts-bordo);
   animation: cine-glow 3.2s ease-in-out infinite;
 }
 
 .log-text {
-  background: linear-gradient(100deg, var(--color-highlight) 30%, #fff6cf 45%, var(--color-highlight) 60%);
+  background: linear-gradient(100deg, var(--ts-blue) 30%, var(--ts-blue-bright) 45%, var(--ts-blue) 60%);
   background-size: 250% auto;
   -webkit-background-clip: text;
   background-clip: text;
