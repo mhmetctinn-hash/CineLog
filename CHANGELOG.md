@@ -51,9 +51,38 @@
   - Test kullanıcısı sonrasında veritabanından silindi.
 - Commit: "Add JWT auth: register, login, logout with bcrypt password hashing"
 
+### 5. TMDB API Entegrasyonu
+- `backend/src/services/tmdb.service.ts` — `searchMovies`, `getMovieDetails` (credits + videos ile birlikte).
+- `backend/src/routes/tmdb.routes.ts` — `GET /api/movies/search`, `GET /api/movies/:id`.
+- Commit: "Add TMDB API proxy: movie search and details endpoints"
+
+### 6. Film Logları ve İzleme Listesi
+- Migration `002_create_movies_logs_watchlist.sql` — `movies`, `movie_logs`, `watchlist` tabloları.
+- `backend/src/services/movie.service.ts` — `getOrCreateMovieByTmdbId` (TMDB'den çekip yerel `movies` tablosuna cache'liyor).
+- `backend/src/services/log.service.ts`, `watchlist.service.ts` ve ilgili controller/route'lar — log CRUD, watchlist ekleme/çıkarma, `tmdbId` ile filtreleme.
+- Commit: "Add movie logs and watchlist: schema, endpoints, and tmdbId filtering"
+
+### 7. Frontend (React + Vite + PWA)
+- `frontend/` — React 19 + Vite + Tailwind 4 + `vite-plugin-pwa`.
+- Sayfalar: `Login`, `Register`, `Search`, `MovieDetail`, `Profile` (Loglarım), `Watchlist`.
+- `AuthContext`, `ProtectedRoute`, API client katmanı (`api/auth.ts`, `logs.ts`, `tmdb.ts`, `watchlist.ts`), bileşenler (`Layout`, `MovieCard`, `StarRating`).
+- Commit: "Add React + Vite frontend with PWA support and auth/me endpoint"
+
+### 8. Film Haritası ve Loglarım Filtreleri
+- `movies` tablosuna `genre_ids`, `collection_id`, `collection_name` eklendi (migration `003_add_genre_collection.sql`); mevcut kayıtlar TMDB'den geriye dönük dolduruldu.
+- **Loglarım sayfası**: başlığa göre arama, **kendi verdiğin puana göre** minimum eşik filtresi, tarih/puan sıralaması.
+- **Yeni `/map` sayfası (Film Haritası)**: d3-force ile yazılan özel SVG grafik.
+  - **Kümeleme algoritması** (sahte veri yok, tamamen kullanıcının kendi loglarından türetiliyor): filtrelenmiş film kümesinde her türün sıklığı sayılıyor, her film kendi tür listesindeki **en sık geçen türe** atanıyor; bu şekilde otomatik kategoriler (ör. "Dram (3)", "Bilim Kurgu (1)") oluşuyor.
+  - Node'lar gerçek TMDB poster görselleri + puan rozeti ile gösteriliyor; aynı seriye ait devam filmleri arasına bağlantı çizgisi çiziliyor.
+  - Tür bazlı çoklu seçim filtresi (kullanıcının verisinde geçen türlerden dinamik oluşturuluyor) ve minimum puan filtresi.
+- **Karşılaşılan sorunlar ve çözümleri:**
+  - İlk denemede `react-force-graph-2d` kullanıldı; React 19 ile uyumsuz çıktı (react-kapsule eski hook deseni), kaldırılıp `d3-force` ile özel SVG render'a geçildi.
+  - Bileşen `Map` olarak adlandırılmıştı — bu, JS'in yerleşik `Map` sınıfını gölgeleyip kod içindeki `new Map()` çağrılarının kendi component fonksiyonunu çağırmasına (ve React hook hatalarına) yol açtı. Bileşen `MovieMap` olarak yeniden adlandırılarak düzeltildi.
+- Tarayıcıda gerçek verilerle (5 film, farklı tür/seri kombinasyonları) test edildi; filtreler, tıklama ile film detayına yönlendirme ve kümeleme doğrulandı.
+- Commit: "Add movie map page and rating-based log filters"
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-2 tamamlandı (proje hazırlığı, backend + DB + Auth kurulumu).
-- **Sıradaki adım:** TMDB API entegrasyonu — backend üzerinden film arama/detay proxy endpoint'leri (`/api/movies/search` vb.), API key `.env` içinde `TMDB_API_KEY` alanına eklenmiş durumda, henüz servis katmanı yazılmadı.
-- Frontend (React + Vite + Tailwind + PWA) henüz başlanmadı.
+- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), ve ek özellik olarak Film Haritası + gelişmiş log filtreleri.
+- **Sıradaki adım için düşünülebilecekler:** çok sayıda film loglandığında tür kümelerinin okunabilirliğini korumak (ör. ikincil tür filtreleri, kümeleri daraltma), watchlist sayfasına da filtre eklenmesi, veya sosyal/paylaşım özellikleri.
