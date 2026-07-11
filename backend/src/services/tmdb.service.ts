@@ -68,3 +68,20 @@ export interface TmdbListItem {
   release_date: string | null;
   vote_average: number;
 }
+
+export function searchTvShows(query: string, page: number) {
+  return tmdbFetch("/search/tv", { query, page: String(page) });
+}
+
+export function getTvShowDetails(id: string) {
+  return tmdbFetch(`/tv/${id}`, { append_to_response: "credits,videos" });
+}
+
+export function discoverTvByGenrePaged(genreId: number, page: number) {
+  return tmdbFetch<TmdbDiscoverResult>("/discover/tv", {
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+    "vote_count.gte": "50",
+    page: String(page),
+  });
+}

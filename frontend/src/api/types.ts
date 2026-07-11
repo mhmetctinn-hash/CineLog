@@ -83,3 +83,50 @@ export interface WatchlistItem {
   title: string;
   poster_path: string | null;
 }
+
+export interface TmdbTvSummary {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  first_air_date: string | null;
+  overview: string;
+}
+
+export interface TmdbTvSearchResult {
+  page: number;
+  results: TmdbTvSummary[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface TmdbTvDetail extends TmdbTvSummary {
+  number_of_seasons: number | null;
+  genres: { id: number; name: string }[];
+  videos?: { results: TmdbVideo[] };
+}
+
+export interface TvLog {
+  id: string;
+  user_id: string;
+  tv_show_id: string;
+  tmdb_id: number;
+  rating: number | null;
+  review: string | null;
+  watched_date: string;
+  status: LogStatus;
+  has_spoilers: boolean;
+  created_at: string;
+  name: string;
+  poster_path: string | null;
+  genre_ids: number[];
+}
+
+export interface TvWatchlistItem {
+  id: string;
+  user_id: string;
+  tv_show_id: string;
+  tmdb_id: number;
+  added_at: string;
+  name: string;
+  poster_path: string | null;
+}

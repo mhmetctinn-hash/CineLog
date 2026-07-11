@@ -8,6 +8,7 @@ import { apiLimiter, authLimiter } from "./middleware/rateLimit";
 import { authRouter } from "./routes/auth.routes";
 import { logRouter } from "./routes/log.routes";
 import { tmdbRouter } from "./routes/tmdb.routes";
+import { tvRouter } from "./routes/tv.routes";
 import { watchlistRouter } from "./routes/watchlist.routes";
 
 export const app = express();
@@ -25,6 +26,7 @@ app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/tmdb", tmdbRouter);
 app.use("/api/logs", logRouter);
 app.use("/api/watchlist", watchlistRouter);
+app.use("/api/tv", tvRouter);
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ email: req.auth?.email });

@@ -1,36 +1,60 @@
 import { useMemo, useState } from 'react';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { logsApi } from '../../api/logs';
+import { tvApi } from '../../api/tv';
 import { MovieCard } from '../../components/MovieCard';
 import { StarRating } from '../../components/StarRating';
 import type { LogStatus } from '../../api/types';
 
 type SortOption = 'date_desc' | 'date_asc' | 'rating_desc' | 'rating_asc';
 type StatusFilter = LogStatus | 'all';
+type Mode = 'movie' | 'tv';
 
 const STATUS_LABEL: Record<LogStatus, string> = {
   watched: 'İzledim',
   dropped: 'Yarım Bıraktım',
 };
 
+interface CommonLog {
+  id: string;
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  watchedDate: string;
+  status: LogStatus;
+  rating: number | null;
+}
+
 export function Profile() {
+  const [mode, setMode] = useState<Mode>('movie');
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<SortOption>('date_desc');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const {
+    data: moviePages,
+    isLoading: movieLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['logs-page', statusFilter],
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       logsApi.page({ status: statusFilter === 'all' ? undefined : statusFilter, cursor: pageParam, limit: 20 }),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    enabled: mode === 'movie',
   });
 
-  const logs = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
+  const { data: tvLogsRaw, isLoading: tvLoading } = useQuery({
+    queryKey: ['tv-logs'],
+    queryFn: () => tvApi.logs.list(),
+    enabled: mode === 'tv',
+  });
 
-  const deleteLog = useMutation({
+  const deleteMovieLog = useMutation({
     mutationFn: (id: string) => logsApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['logs-page'] });
@@ -38,6 +62,38 @@ export function Profile() {
       queryClient.invalidateQueries({ queryKey: ['logs-stats'] });
     },
   });
+
+  const deleteTvLog = useMutation({
+    mutationFn: (id: string) => tvApi.logs.remove(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tv-logs'] }),
+  });
+
+  const logs = useMemo<CommonLog[]>(() => {
+    if (mode === 'movie') {
+      return (moviePages?.pages.flatMap((page) => page.items) ?? []).map((l) => ({
+        id: l.id,
+        tmdbId: l.tmdb_id,
+        title: l.title,
+        posterPath: l.poster_path,
+        watchedDate: l.watched_date,
+        status: l.status,
+        rating: l.rating,
+      }));
+    }
+    return (tvLogsRaw ?? [])
+      .filter((l) => statusFilter === 'all' || l.status === statusFilter)
+      .map((l) => ({
+        id: l.id,
+        tmdbId: l.tmdb_id,
+        title: l.name,
+        posterPath: l.poster_path,
+        watchedDate: l.watched_date,
+        status: l.status,
+        rating: l.rating,
+      }));
+  }, [mode, moviePages, tvLogsRaw, statusFilter]);
+
+  const isLoading = mode === 'movie' ? movieLoading : tvLoading;
 
   const filteredLogs = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -50,33 +106,39 @@ export function Profile() {
     return [...filtered].sort((a, b) => {
       switch (sort) {
         case 'date_asc':
-          return a.watched_date.localeCompare(b.watched_date);
+          return a.watchedDate.localeCompare(b.watchedDate);
         case 'rating_desc':
           return (b.rating ?? 0) - (a.rating ?? 0);
         case 'rating_asc':
           return (a.rating ?? 0) - (b.rating ?? 0);
         case 'date_desc':
         default:
-          return b.watched_date.localeCompare(a.watched_date);
+          return b.watchedDate.localeCompare(a.watchedDate);
       }
     });
   }, [logs, search, minRating, sort]);
-
-  if (isLoading) {
-    return <p className="text-text-muted text-center mt-12">Yükleniyor...</p>;
-  }
-
-  if (logs.length === 0) {
-    return <p className="text-text-muted text-center mt-12">Henüz hiç film loglamadınız.</p>;
-  }
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-highlight mb-4">Loglarım</h1>
 
+      <div className="flex gap-2 mb-4">
+        {(['movie', 'tv'] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              mode === m ? 'bg-primary text-white' : 'bg-surface border border-border text-text-muted'
+            }`}
+          >
+            {m === 'movie' ? 'Filmler' : 'Diziler'}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-wrap gap-3 mb-6 items-end">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-text-muted">Film ara</label>
+          <label className="text-xs text-text-muted">Başlıkta ara</label>
           <input
             type="text"
             value={search}
@@ -127,17 +189,28 @@ export function Profile() {
         </div>
       </div>
 
-      {filteredLogs.length === 0 ? (
+      {isLoading && <p className="text-text-muted text-center mt-12">Yükleniyor...</p>}
+
+      {!isLoading && logs.length === 0 && (
+        <p className="text-text-muted text-center mt-12">
+          {mode === 'movie' ? 'Henüz hiç film loglamadınız.' : 'Henüz hiç dizi loglamadınız.'}
+        </p>
+      )}
+
+      {!isLoading && logs.length > 0 && filteredLogs.length === 0 && (
         <p className="text-text-muted text-center mt-12">Bu filtrelere uyan log yok.</p>
-      ) : (
+      )}
+
+      {filteredLogs.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filteredLogs.map((log) => (
             <MovieCard
               key={log.id}
-              tmdbId={log.tmdb_id}
+              tmdbId={log.tmdbId}
               title={log.title}
-              posterPath={log.poster_path}
-              subtitle={log.watched_date.slice(0, 10)}
+              posterPath={log.posterPath}
+              subtitle={log.watchedDate.slice(0, 10)}
+              linkTo={mode === 'tv' ? `/tv/${log.tmdbId}` : undefined}
               actions={
                 <div className="flex flex-col gap-2">
                   <span
@@ -149,7 +222,7 @@ export function Profile() {
                   </span>
                   <StarRating value={log.rating} readOnly />
                   <button
-                    onClick={() => deleteLog.mutate(log.id)}
+                    onClick={() => (mode === 'movie' ? deleteMovieLog.mutate(log.id) : deleteTvLog.mutate(log.id))}
                     className="text-xs text-text-muted hover:text-primary text-left"
                   >
                     Sil
@@ -161,7 +234,7 @@ export function Profile() {
         </div>
       )}
 
-      {hasNextPage && (
+      {mode === 'movie' && hasNextPage && (
         <div className="flex justify-center mt-6">
           <button
             onClick={() => fetchNextPage()}

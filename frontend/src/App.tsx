@@ -10,6 +10,7 @@ import { Watchlist } from './pages/Watchlist/Watchlist';
 import { MovieMap } from './pages/Map/Map';
 import { Stats } from './pages/Stats/Stats';
 import { Category } from './pages/Category/Category';
+import { TvDetail } from './pages/TvDetail/TvDetail';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Search />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/tv/:id" element={<TvDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/map" element={<MovieMap />} />

@@ -136,8 +136,17 @@
 
 ---
 
+### 15. Dizi (TV Series) Entegrasyonu
+- **Mimari karar:** Filmlerden tamamen ayrı bir şema (`tv_shows`, `tv_logs`, `tv_watchlist` — migration `005_create_tv_shows.sql`). `movies`/`movie_logs`/`watchlist` şemasına dokunulmadı; polymorphic/ortak tablo yaklaşımı yerine hızlı ve az riskli ayrı-tablo yaklaşımı tercih edildi.
+- **Backend:** `tmdb.service.ts`'e `searchTvShows`, `getTvShowDetails`, `discoverTvByGenrePaged` eklendi. `tvShow.service.ts` (`getOrCreateTvShowByTmdbId`, movie.service.ts'in dizi karşılığı), `tvLog.service.ts`, `tvWatchlist.service.ts` — hepsi film servislerinin birebir aynısı, sadece dizi şemasına yazıyor. Tek `tv.controller.ts` altında TMDB proxy + log CRUD + watchlist CRUD toplandı; `/api/tv/*` route'ları `tv.routes.ts`'te — `/search`, `/discover`, `/logs`, `/watchlist` sabit path'leri `/:id` catch-all'dan **önce** tanımlandı (aksi halde Express `/:id` route'u `/logs` gibi isteklerle eşleştirip 400 dönüyordu, bu hatayı geliştirme sırasında yakalayıp düzelttik).
+- **Frontend:** `api/tv.ts` client'ı; `Search` sayfasına Film/Dizi sekmesi (aynı arama UX'i, farklı endpoint); yeni `TvDetail` sayfası (`MovieDetail`'in birebir dizi karşılığı — durum/puan/spoiler/zengin metin/fragman/paylaşım kartı hepsi çalışıyor); `Profile` ve `Watchlist` sayfalarına Film/Dizi sekmesi eklendi. `MovieCard` bileşenine `linkTo` prop'u eklenerek hem film hem dizi kartlarında yeniden kullanılabilir hale getirildi.
+- **Bilinçli olarak bu aşamaya dahil edilmeyenler** (kapsamı büyütmemek için): dizi logları için cursor-based pagination (basit liste kullanıldı, film hacmine ulaşınca eklenebilir), Film Haritası ve İstatistik Paneli'nin dizileri de kapsaması, Kategoriler menüsünün dizi türlerini de içermesi (TMDB'de film ve dizi tür ID'leri farklı kümeler).
+- Tarayıcıda uçtan uca doğrulandı: dizi arama (Breaking Bad), detay sayfası (sezon sayısı, tür, fragman notu), log kaydetme (puan/durum), Loglarım ve İzleme Listesi'nde Dizi sekmesi.
+- Commit: "Add TV series integration: search, detail, logs, watchlist" (`feature/tv-series-integration` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu ve fragman özellikleri eklendi. Roadmap 1-5: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist (durum + spoiler + zengin metin dahil), frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri (cursor pagination dahil), İstatistik Paneli, Sosyal Paylaşım Kartı, Öneri Motoru, altyapı sertleştirme (rate limiting, testler, CI/CD, Sentry, Gitflow), kategori navigasyonu, fragmanlar.
-- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
-- **Sıradaki büyük özellik: Dizi (TV series) entegrasyonu** — kullanıcı tarafından talep edildi, henüz başlanmadı. TMDB'nin `/tv` endpoint'leri (arama, detay, `/discover/tv`) kullanılacak; muhtemelen mevcut `movies` tablosundan ayrı bir `tv_shows`/`tv_logs` şeması veya polymorphic bir yaklaşım gerekecek — mimari karar henüz verilmedi.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu, fragman ve **dizi (TV) entegrasyonu** eklendi. CineLog artık hem film hem dizi takip edebilen bir platform.
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render), dizi loglarına cursor pagination, Film Haritası/İstatistik Paneli'nin dizileri de kapsaması.
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.
