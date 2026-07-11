@@ -83,6 +83,18 @@
 
 ---
 
+### 9. İstatistik Paneli (Dashboard)
+- `backend/src/services/log.service.ts` — `getStats(userId)`: toplam log sayısı, ortalama kişisel puan, tür dağılımı (`genre_ids` üzerinden sayım), aylık izleme aktivitesi (`watched_date` → `YYYY-MM` gruplama), en yüksek puanlı 5 film.
+- `GET /api/logs/stats` endpoint'i eklendi.
+- Yeni `/stats` sayfası: özet kartları (toplam film, ortalama puan, favori tür, en yoğun ay), tür dağılımı için yatay bar chart, aylık aktivite için dikey bar chart, en yüksek puanlı filmler için poster ızgarası. Grafikler harici kütüphane kullanılmadan özel SVG/CSS ile yazıldı (Film Haritası'ndaki `react-force-graph-2d` uyumsuzluğu tekrarlanmasın diye), spesifikasyondaki marka renkleri (`#fcd116`, `#007bff`) kullanıldı.
+- Commit: "Add statistics dashboard page"
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), ve ek özellik olarak Film Haritası + gelişmiş log filtreleri.
-- **Sıradaki adım için düşünülebilecekler:** çok sayıda film loglandığında tür kümelerinin okunabilirliğini korumak (ör. ikincil tür filtreleri, kümeleri daraltma), watchlist sayfasına da filtre eklenmesi, veya sosyal/paylaşım özellikleri.
+- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, ve İstatistik Paneli.
+- Spesifikasyon belgesine (`cinelog_proje_dokumani claude.md`) göre henüz eksik olanlar:
+  - **MVP:** "Yarım Bırakıldı" izleme durumu (şu an sadece İzlendi/İzlenecek var), spoiler bayraklı/zengin metin inceleme notu, cursor-based pagination.
+  - **2. Aşama:** Sosyal paylaşım kartı (PNG export), AI öneri motoru.
+  - **Altyapı:** Rate limiting, test (Jest/Vitest/Playwright), CI/CD (GitHub Actions), Sentry, Gitflow (şu an her şey doğrudan `main`'e gidiyor).
+- **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, ya da çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
