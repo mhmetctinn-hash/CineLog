@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { discoverMoviesByGenrePaged, getMovieDetails, searchMovies, TmdbRequestError } from "../services/tmdb.service";
+import { getMovieDetails, searchMovies, TmdbRequestError } from "../services/tmdb.service";
 import { getRecommendationsForUser } from "../services/recommendation.service";
 
 const searchSchema = z.object({
@@ -12,11 +12,6 @@ const detailsSchema = z.object({
   id: z.string().regex(/^\d+$/, "id must be numeric"),
 });
 
-const discoverSchema = z.object({
-  genre: z.coerce.number().int().positive(),
-  page: z.coerce.number().int().min(1).default(1),
-});
-
 export async function search(req: Request, res: Response) {
   const parsed = searchSchema.safeParse(req.query);
   if (!parsed.success) {
@@ -25,23 +20,6 @@ export async function search(req: Request, res: Response) {
 
   try {
     const data = await searchMovies(parsed.data.query, parsed.data.page);
-    return res.json(data);
-  } catch (err) {
-    if (err instanceof TmdbRequestError) {
-      return res.status(err.status).json({ error: err.message });
-    }
-    throw err;
-  }
-}
-
-export async function discover(req: Request, res: Response) {
-  const parsed = discoverSchema.safeParse(req.query);
-  if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.flatten() });
-  }
-
-  try {
-    const data = await discoverMoviesByGenrePaged(parsed.data.genre, parsed.data.page);
     return res.json(data);
   } catch (err) {
     if (err instanceof TmdbRequestError) {

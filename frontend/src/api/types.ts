@@ -71,7 +71,13 @@ export interface LogStats {
   averageRating: number | null;
   genreCounts: { genreId: number; count: number }[];
   monthlyCounts: { month: string; count: number }[];
-  topRated: { tmdbId: number; title: string; posterPath: string | null; rating: number | null }[];
+  topRated: {
+    tmdbId: number;
+    title: string;
+    posterPath: string | null;
+    rating: number | null;
+    mediaType: 'movie' | 'tv';
+  }[];
 }
 
 export interface WatchlistItem {
@@ -82,6 +88,7 @@ export interface WatchlistItem {
   added_at: string;
   title: string;
   poster_path: string | null;
+  genre_ids: number[];
 }
 
 export interface TmdbTvSummary {
@@ -129,4 +136,10 @@ export interface TvWatchlistItem {
   added_at: string;
   name: string;
   poster_path: string | null;
+  genre_ids: number[];
+}
+
+export interface TvLogPage {
+  items: TvLog[];
+  nextCursor: string | null;
 }

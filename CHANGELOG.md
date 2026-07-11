@@ -146,7 +146,22 @@
 
 ---
 
+### 16. Kategoriler Kişisel Koleksiyona Döndürüldü + Ertelenen 3 İş Tamamlandı
+- **Önemli yön değişikliği:** Kategori sayfaları artık TMDB'nin tüm kataloğunu (discover/keşfet) çekmiyor — CineLog kişisel bir takip aracı, bir film sitesi değil. `GET /api/tmdb/discover` ve `GET /api/tv/discover` endpoint'leri ve `discoverMoviesByGenrePaged`/`discoverTvByGenrePaged` servis fonksiyonları tamamen kaldırıldı (öneri motorunun kullandığı türe göre tekli `discoverMoviesByGenre` kaldı).
+  - `CategoryMenu` artık kullanıcının kendi loglarında/izleme listesinde **gerçekten var olan** türleri gösteriyor ("Filmlerim" / "Dizilerim" iki ayrı bölüm), TMDB'nin sabit tür listesini değil.
+  - `Category` sayfası kullanıcının kendi film/dizi koleksiyonunu (log ∪ watchlist, `useUserMovieLibrary`/`useUserTvLibrary` hook'ları ile) genre'ye göre filtreliyor; TMDB sayfalaması kalktı, sayfalamaya gerek yok (kişisel koleksiyon küçük).
+  - `watchlist.service.ts` ve `tvWatchlist.service.ts`'in `list` sorgularına `genre_ids` eklendi (önceden sadece log'larda vardı, watchlist'te de kategori filtrelemesi için gerekliydi).
+- **Ertelenen 3 iş tamamlandı:**
+  1. **TV loglarına cursor pagination:** `tvLog.service.ts`'e `listTvLogsPage` (movie tarafındaki mantığın birebir aynısı), `GET /api/tv/logs/page` endpoint'i, frontend `tvApi.logs.page()`; `Profile` sayfasının Dizi sekmesi artık `useInfiniteQuery` + "Daha Fazla Yükle" kullanıyor (önceden düz liste çekiyordu).
+  2. **İstatistik Paneli dizileri kapsıyor:** `getStats` artık `movie_logs` ve `tv_logs`'u birlikte sorgulayıp birleştiriyor; tür dağılımı, aylık aktivite, ortalama puan ve en yüksek puanlılar hem film hem diziden geliyor. `topRated`'a `mediaType` eklendi (tıklanınca `/movie/:id` veya `/tv/:id`'ye doğru yönleniyor).
+  3. **Film Haritası dizileri kapsıyor:** `MovieMap` artık hem `logsApi.list()` hem `tvApi.logs.list()`'i çekip birleştiriyor; kümeleme algoritması aynı (en sık geçen tür), node id'leri `mediaType-tmdbId` ile benzersizleştirildi. Seri/devam filmi bağlantıları sadece filmler arasında (dizilerde "collection" kavramı şemada yok).
+  - Film/dizi tür ID çakışmasını çözmek için `lib/genreName.ts` — önce film tür haritasına, yoksa dizi tür haritasına bakan `resolveGenreName` fonksiyonu; Stats ve Map bunu kullanıyor.
+- Tarayıcıda doğrulandı: Kategoriler menüsü sadece kişisel türleri listeliyor, "Dram" kategorisi TMDB'den değil kendi loglarımdan 5 film gösterdi; İstatistik Paneli'nde Breaking Bad "En Yüksek Puan Verdiklerin" listesinde çıktı ve tıklayınca `/tv/1396`'ya gitti; Harita'da dizi de bir kümede (Dram, 6 öğe) yer aldı.
+- Commit: "Restrict categories to the user's own collection; TV parity for pagination, stats, and map" (`feature/personal-categories-and-tv-parity` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu, fragman ve **dizi (TV) entegrasyonu** eklendi. CineLog artık hem film hem dizi takip edebilen bir platform.
-- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render), dizi loglarına cursor pagination, Film Haritası/İstatistik Paneli'nin dizileri de kapsaması.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman ve **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede) eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.

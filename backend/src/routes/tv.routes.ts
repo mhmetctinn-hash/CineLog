@@ -3,8 +3,8 @@ import {
   addWatchlist,
   createLog,
   details,
-  discover,
   listLogs,
+  listLogsPage,
   listWatchlist,
   removeLog,
   removeWatchlist,
@@ -18,10 +18,10 @@ export const tvRouter = Router();
 tvRouter.use(requireAuth);
 
 tvRouter.get("/search", search);
-tvRouter.get("/discover", discover);
 
 tvRouter.post("/logs", createLog);
 tvRouter.get("/logs", listLogs);
+tvRouter.get("/logs/page", listLogsPage);
 tvRouter.put("/logs/:id", updateLog);
 tvRouter.delete("/logs/:id", removeLog);
 
@@ -30,5 +30,5 @@ tvRouter.get("/watchlist", listWatchlist);
 tvRouter.delete("/watchlist/:id", removeWatchlist);
 
 // catch-all single-segment param route must come last, after the fixed
-// /search, /discover, /logs, /watchlist paths above
+// /search, /logs, /watchlist paths above
 tvRouter.get("/:id", details);

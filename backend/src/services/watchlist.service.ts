@@ -28,7 +28,7 @@ export async function addToWatchlist(userId: string, tmdbId: number): Promise<Wa
 
 export async function listWatchlist(userId: string, tmdbId?: number) {
   const result = await pool.query(
-    `SELECT watchlist.*, movies.title, movies.poster_path, movies.tmdb_id
+    `SELECT watchlist.*, movies.title, movies.poster_path, movies.tmdb_id, movies.genre_ids
      FROM watchlist
      JOIN movies ON movies.id = watchlist.movie_id
      WHERE watchlist.user_id = $1 AND ($2::INTEGER IS NULL OR movies.tmdb_id = $2)

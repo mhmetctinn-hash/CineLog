@@ -28,7 +28,7 @@ export async function addTvToWatchlist(userId: string, tmdbId: number): Promise<
 
 export async function listTvWatchlist(userId: string, tmdbId?: number) {
   const result = await pool.query(
-    `SELECT tv_watchlist.*, tv_shows.name, tv_shows.poster_path, tv_shows.tmdb_id
+    `SELECT tv_watchlist.*, tv_shows.name, tv_shows.poster_path, tv_shows.tmdb_id, tv_shows.genre_ids
      FROM tv_watchlist
      JOIN tv_shows ON tv_shows.id = tv_watchlist.tv_show_id
      WHERE tv_watchlist.user_id = $1 AND ($2::INTEGER IS NULL OR tv_shows.tmdb_id = $2)

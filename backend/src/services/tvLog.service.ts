@@ -46,6 +46,62 @@ export async function listTvLogs(userId: string, tmdbId?: number) {
   return result.rows;
 }
 
+interface TvLogCursor {
+  watchedDate: string;
+  createdAt: string;
+  id: string;
+}
+
+export function encodeTvLogCursor(cursor: TvLogCursor): string {
+  return Buffer.from(JSON.stringify(cursor)).toString("base64url");
+}
+
+function decodeTvLogCursor(cursor: string): TvLogCursor {
+  return JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+}
+
+interface ListTvLogsPageInput {
+  userId: string;
+  status?: LogStatus;
+  cursor?: string;
+  limit?: number;
+}
+
+export async function listTvLogsPage(input: ListTvLogsPageInput) {
+  const limit = Math.min(Math.max(input.limit ?? 20, 1), 50);
+  const cursor = input.cursor ? decodeTvLogCursor(input.cursor) : null;
+
+  const result = await pool.query(
+    `SELECT tv_logs.*, tv_shows.name, tv_shows.poster_path, tv_shows.tmdb_id, tv_shows.genre_ids
+     FROM tv_logs
+     JOIN tv_shows ON tv_shows.id = tv_logs.tv_show_id
+     WHERE tv_logs.user_id = $1
+       AND ($2::TEXT IS NULL OR tv_logs.status = $2)
+       AND (
+         $3::DATE IS NULL
+         OR (tv_logs.watched_date, tv_logs.created_at, tv_logs.id) < ($3, $4, $5)
+       )
+     ORDER BY tv_logs.watched_date DESC, tv_logs.created_at DESC, tv_logs.id DESC
+     LIMIT $6`,
+    [
+      input.userId,
+      input.status ?? null,
+      cursor?.watchedDate ?? null,
+      cursor?.createdAt ?? null,
+      cursor?.id ?? null,
+      limit + 1,
+    ],
+  );
+
+  const hasMore = result.rows.length > limit;
+  const items = result.rows.slice(0, limit);
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last ? encodeTvLogCursor({ watchedDate: last.watched_date, createdAt: last.created_at, id: last.id }) : null;
+
+  return { items, nextCursor };
+}
+
 interface UpdateTvLogInput {
   rating?: number;
   review?: string;

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { logsApi } from '../../api/logs';
 import { tvApi } from '../../api/tv';
 import { MovieCard } from '../../components/MovieCard';
@@ -36,9 +36,9 @@ export function Profile() {
   const {
     data: moviePages,
     isLoading: movieLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    fetchNextPage: fetchNextMoviePage,
+    hasNextPage: hasNextMoviePage,
+    isFetchingNextPage: isFetchingNextMoviePage,
   } = useInfiniteQuery({
     queryKey: ['logs-page', statusFilter],
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
@@ -48,9 +48,18 @@ export function Profile() {
     enabled: mode === 'movie',
   });
 
-  const { data: tvLogsRaw, isLoading: tvLoading } = useQuery({
-    queryKey: ['tv-logs'],
-    queryFn: () => tvApi.logs.list(),
+  const {
+    data: tvPages,
+    isLoading: tvLoading,
+    fetchNextPage: fetchNextTvPage,
+    hasNextPage: hasNextTvPage,
+    isFetchingNextPage: isFetchingNextTvPage,
+  } = useInfiniteQuery({
+    queryKey: ['tv-logs-page', statusFilter],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+      tvApi.logs.page({ status: statusFilter === 'all' ? undefined : statusFilter, cursor: pageParam, limit: 20 }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: mode === 'tv',
   });
 
@@ -65,7 +74,10 @@ export function Profile() {
 
   const deleteTvLog = useMutation({
     mutationFn: (id: string) => tvApi.logs.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tv-logs'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tv-logs-page'] });
+      queryClient.invalidateQueries({ queryKey: ['tv-logs'] });
+    },
   });
 
   const logs = useMemo<CommonLog[]>(() => {
@@ -80,20 +92,21 @@ export function Profile() {
         rating: l.rating,
       }));
     }
-    return (tvLogsRaw ?? [])
-      .filter((l) => statusFilter === 'all' || l.status === statusFilter)
-      .map((l) => ({
-        id: l.id,
-        tmdbId: l.tmdb_id,
-        title: l.name,
-        posterPath: l.poster_path,
-        watchedDate: l.watched_date,
-        status: l.status,
-        rating: l.rating,
-      }));
-  }, [mode, moviePages, tvLogsRaw, statusFilter]);
+    return (tvPages?.pages.flatMap((page) => page.items) ?? []).map((l) => ({
+      id: l.id,
+      tmdbId: l.tmdb_id,
+      title: l.name,
+      posterPath: l.poster_path,
+      watchedDate: l.watched_date,
+      status: l.status,
+      rating: l.rating,
+    }));
+  }, [mode, moviePages, tvPages]);
 
   const isLoading = mode === 'movie' ? movieLoading : tvLoading;
+  const hasNextPage = mode === 'movie' ? hasNextMoviePage : hasNextTvPage;
+  const isFetchingNextPage = mode === 'movie' ? isFetchingNextMoviePage : isFetchingNextTvPage;
+  const fetchNextPage = mode === 'movie' ? fetchNextMoviePage : fetchNextTvPage;
 
   const filteredLogs = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -234,7 +247,7 @@ export function Profile() {
         </div>
       )}
 
-      {mode === 'movie' && hasNextPage && (
+      {hasNextPage && (
         <div className="flex justify-center mt-6">
           <button
             onClick={() => fetchNextPage()}

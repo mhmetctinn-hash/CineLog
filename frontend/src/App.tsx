@@ -26,7 +26,7 @@ function App() {
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/map" element={<MovieMap />} />
           <Route path="/stats" element={<Stats />} />
-          <Route path="/category/:genreId" element={<Category />} />
+          <Route path="/category/:mediaType/:genreId" element={<Category />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

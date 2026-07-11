@@ -37,27 +37,14 @@ export function getMovieRecommendations(id: string) {
   return tmdbFetch<{ results: TmdbListItem[] }>(`/movie/${id}/recommendations`, {});
 }
 
+// Used only as a recommendation fallback (favorite-genre discovery), never for
+// open-ended catalog browsing — CineLog is a personal tracker, not a
+// storefront, so category pages only ever show the user's own collection.
 export function discoverMoviesByGenre(genreId: number) {
   return tmdbFetch<{ results: TmdbListItem[] }>("/discover/movie", {
     with_genres: String(genreId),
     sort_by: "vote_average.desc",
     "vote_count.gte": "200",
-  });
-}
-
-export interface TmdbDiscoverResult {
-  page: number;
-  results: TmdbListItem[];
-  total_pages: number;
-  total_results: number;
-}
-
-export function discoverMoviesByGenrePaged(genreId: number, page: number) {
-  return tmdbFetch<TmdbDiscoverResult>("/discover/movie", {
-    with_genres: String(genreId),
-    sort_by: "popularity.desc",
-    "vote_count.gte": "50",
-    page: String(page),
   });
 }
 
@@ -75,13 +62,4 @@ export function searchTvShows(query: string, page: number) {
 
 export function getTvShowDetails(id: string) {
   return tmdbFetch(`/tv/${id}`, { append_to_response: "credits,videos" });
-}
-
-export function discoverTvByGenrePaged(genreId: number, page: number) {
-  return tmdbFetch<TmdbDiscoverResult>("/discover/tv", {
-    with_genres: String(genreId),
-    sort_by: "popularity.desc",
-    "vote_count.gte": "50",
-    page: String(page),
-  });
 }

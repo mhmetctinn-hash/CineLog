@@ -3,12 +3,27 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { forceSimulation, forceLink, forceManyBody, forceCollide, forceX, forceY, type SimulationNodeDatum } from 'd3-force';
 import { logsApi } from '../../api/logs';
-import { GENRE_NAMES } from '../../lib/genres';
+import { tvApi } from '../../api/tv';
+import { resolveGenreName } from '../../lib/genreName';
 import { posterUrl } from '../../lib/tmdbImage';
+
+type MediaType = 'movie' | 'tv';
+
+interface UnifiedItem {
+  tmdbId: number;
+  mediaType: MediaType;
+  title: string;
+  posterPath: string | null;
+  genreIds: number[];
+  rating: number | null;
+  collectionId: number | null;
+  collectionName: string | null;
+}
 
 interface GraphNode extends SimulationNodeDatum {
   id: string;
   tmdbId: number;
+  mediaType: MediaType;
   title: string;
   posterPath: string | null;
   rating: number | null;
@@ -47,43 +62,76 @@ export function MovieMap() {
   const [selectedGenres, setSelectedGenres] = useState<Set<number>>(new Set());
   const [minRating, setMinRating] = useState(0);
 
-  const { data: logs, isLoading } = useQuery({
+  const { data: movieLogs, isLoading: movieLoading } = useQuery({
     queryKey: ['logs'],
     queryFn: () => logsApi.list(),
   });
 
-  // dedupe logs into one movie per tmdbId (a movie may be logged more than once)
-  const allMovies = useMemo(() => {
-    if (!logs) return [];
-    const byTmdbId = new Map<number, (typeof logs)[number]>();
-    for (const log of logs) {
-      if (!byTmdbId.has(log.tmdb_id)) byTmdbId.set(log.tmdb_id, log);
+  const { data: tvLogs, isLoading: tvLoading } = useQuery({
+    queryKey: ['tv-logs'],
+    queryFn: () => tvApi.logs.list(),
+  });
+
+  const isLoading = movieLoading || tvLoading;
+
+  // dedupe logs into one item per tmdbId+mediaType (a title may be logged more than once)
+  const allItems = useMemo<UnifiedItem[]>(() => {
+    const byId = new Map<string, UnifiedItem>();
+    for (const log of movieLogs ?? []) {
+      const key = `movie-${log.tmdb_id}`;
+      if (!byId.has(key)) {
+        byId.set(key, {
+          tmdbId: log.tmdb_id,
+          mediaType: 'movie',
+          title: log.title,
+          posterPath: log.poster_path,
+          genreIds: log.genre_ids ?? [],
+          rating: log.rating,
+          collectionId: log.collection_id,
+          collectionName: log.collection_name,
+        });
+      }
     }
-    return [...byTmdbId.values()];
-  }, [logs]);
+    for (const log of tvLogs ?? []) {
+      const key = `tv-${log.tmdb_id}`;
+      if (!byId.has(key)) {
+        byId.set(key, {
+          tmdbId: log.tmdb_id,
+          mediaType: 'tv',
+          title: log.name,
+          posterPath: log.poster_path,
+          genreIds: log.genre_ids ?? [],
+          rating: log.rating,
+          collectionId: null,
+          collectionName: null,
+        });
+      }
+    }
+    return [...byId.values()];
+  }, [movieLogs, tvLogs]);
 
   const availableGenres = useMemo(() => {
     const ids = new Set<number>();
-    for (const m of allMovies) for (const g of m.genre_ids ?? []) ids.add(g);
-    return [...ids].sort((a, b) => (GENRE_NAMES[a] ?? '').localeCompare(GENRE_NAMES[b] ?? ''));
-  }, [allMovies]);
+    for (const m of allItems) for (const g of m.genreIds) ids.add(g);
+    return [...ids].sort((a, b) => resolveGenreName(a).localeCompare(resolveGenreName(b), 'tr'));
+  }, [allItems]);
 
-  const filteredMovies = useMemo(() => {
-    return allMovies.filter((m) => {
+  const filteredItems = useMemo(() => {
+    return allItems.filter((m) => {
       if ((m.rating ?? 0) < minRating) return false;
-      if (selectedGenres.size > 0 && !(m.genre_ids ?? []).some((g) => selectedGenres.has(g))) return false;
+      if (selectedGenres.size > 0 && !m.genreIds.some((g) => selectedGenres.has(g))) return false;
       return true;
     });
-  }, [allMovies, minRating, selectedGenres]);
+  }, [allItems, minRating, selectedGenres]);
 
-  // Data-driven clustering: each movie's category is the genre that is most
+  // Data-driven clustering: each item's category is the genre that is most
   // common across the user's own filtered collection (no hardcoded/fake groups).
   const { clusters, nodes, edges } = useMemo(() => {
-    if (filteredMovies.length === 0) return { clusters: [] as Cluster[], nodes: [] as GraphNode[], edges: [] as CollectionEdge[] };
+    if (filteredItems.length === 0) return { clusters: [] as Cluster[], nodes: [] as GraphNode[], edges: [] as CollectionEdge[] };
 
     const genreFrequency = new Map<number, number>();
-    for (const m of filteredMovies) {
-      for (const g of m.genre_ids ?? []) {
+    for (const m of filteredItems) {
+      for (const g of m.genreIds) {
         genreFrequency.set(g, (genreFrequency.get(g) ?? 0) + 1);
       }
     }
@@ -93,13 +141,13 @@ export function MovieMap() {
       return [...genreIds].sort((a, b) => (genreFrequency.get(b) ?? 0) - (genreFrequency.get(a) ?? 0) || a - b)[0];
     }
 
-    const movieCluster = new Map<number, number>(); // tmdbId -> genreId
-    for (const m of filteredMovies) {
-      movieCluster.set(m.tmdb_id, dominantGenre(m.genre_ids ?? []));
+    const itemCluster = new Map<string, number>(); // "mediaType-tmdbId" -> genreId
+    for (const m of filteredItems) {
+      itemCluster.set(`${m.mediaType}-${m.tmdbId}`, dominantGenre(m.genreIds));
     }
 
     const genreCounts = new Map<number, number>();
-    for (const genreId of movieCluster.values()) {
+    for (const genreId of itemCluster.values()) {
       genreCounts.set(genreId, (genreCounts.get(genreId) ?? 0) + 1);
     }
 
@@ -114,7 +162,7 @@ export function MovieMap() {
       return {
         id: i,
         genreId,
-        name: genreId === -1 ? 'Diğer' : GENRE_NAMES[genreId] ?? 'Diğer',
+        name: genreId === -1 ? 'Diğer' : resolveGenreName(genreId),
         color: CLUSTER_COLORS[i % CLUSTER_COLORS.length],
         count: genreCounts.get(genreId) ?? 0,
         cx: centerX + ringRadius * Math.cos(angle),
@@ -124,28 +172,34 @@ export function MovieMap() {
 
     const clusterIndexByGenre = new Map(clusters.map((c) => [c.genreId, c.id]));
 
-    const nodes: GraphNode[] = filteredMovies.map((m) => ({
-      id: String(m.tmdb_id),
-      tmdbId: m.tmdb_id,
+    const nodes: GraphNode[] = filteredItems.map((m) => ({
+      id: `${m.mediaType}-${m.tmdbId}`,
+      tmdbId: m.tmdbId,
+      mediaType: m.mediaType,
       title: m.title,
-      posterPath: m.poster_path,
+      posterPath: m.posterPath,
       rating: m.rating,
-      clusterId: clusterIndexByGenre.get(movieCluster.get(m.tmdb_id) ?? -1) ?? 0,
+      clusterId: clusterIndexByGenre.get(itemCluster.get(`${m.mediaType}-${m.tmdbId}`) ?? -1) ?? 0,
     }));
 
+    // Sequel/franchise links only exist for movies (tv_shows has no collection concept in this schema)
     const edges: CollectionEdge[] = [];
-    for (let i = 0; i < filteredMovies.length; i++) {
-      for (let j = i + 1; j < filteredMovies.length; j++) {
-        const a = filteredMovies[i];
-        const b = filteredMovies[j];
-        if (a.collection_id && a.collection_id === b.collection_id) {
-          edges.push({ source: String(a.tmdb_id), target: String(b.tmdb_id), label: a.collection_name ?? 'Seri' });
+    for (let i = 0; i < filteredItems.length; i++) {
+      for (let j = i + 1; j < filteredItems.length; j++) {
+        const a = filteredItems[i];
+        const b = filteredItems[j];
+        if (a.collectionId && a.collectionId === b.collectionId) {
+          edges.push({
+            source: `${a.mediaType}-${a.tmdbId}`,
+            target: `${b.mediaType}-${b.tmdbId}`,
+            label: a.collectionName ?? 'Seri',
+          });
         }
       }
     }
 
     return { clusters, nodes, edges };
-  }, [filteredMovies]);
+  }, [filteredItems]);
 
   useEffect(() => {
     if (nodes.length === 0) {
@@ -195,10 +249,11 @@ export function MovieMap() {
     return <p className="text-text-muted text-center mt-12">Yükleniyor...</p>;
   }
 
-  if (!logs || logs.length < 2) {
+  const totalLogs = (movieLogs?.length ?? 0) + (tvLogs?.length ?? 0);
+  if (totalLogs < 2) {
     return (
       <p className="text-text-muted text-center mt-12">
-        Harita için en az 2 film loglamanız gerekiyor.
+        Harita için en az 2 film/dizi loglamanız gerekiyor.
       </p>
     );
   }
@@ -208,7 +263,7 @@ export function MovieMap() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-2">Film Haritası</h1>
+      <h1 className="text-xl font-semibold text-highlight mb-2">Film ve Dizi Haritası</h1>
       <p className="text-sm text-text-muted mb-4">
         Kategoriler kendi loglarınızdaki türlerin sıklığına göre otomatik oluşturulur. Çizgiler aynı seriye ait devam filmlerini gösterir.
       </p>
@@ -240,7 +295,7 @@ export function MovieMap() {
                     : 'border-border text-text-muted hover:text-text'
                 }`}
               >
-                {GENRE_NAMES[g] ?? g}
+                {resolveGenreName(g)}
               </button>
             ))}
             {selectedGenres.size > 0 && (
@@ -253,7 +308,7 @@ export function MovieMap() {
       </div>
 
       {nodes.length === 0 ? (
-        <p className="text-text-muted text-center mt-12">Bu filtrelere uyan film yok.</p>
+        <p className="text-text-muted text-center mt-12">Bu filtrelere uyan film/dizi yok.</p>
       ) : (
         <div className="border border-border rounded-lg overflow-hidden bg-surface">
           <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" height={HEIGHT}>
@@ -298,7 +353,7 @@ export function MovieMap() {
                 <g
                   key={node.id}
                   transform={`translate(${node.x ?? 0}, ${node.y ?? 0})`}
-                  onClick={() => navigate(`/movie/${node.tmdbId}`)}
+                  onClick={() => navigate(node.mediaType === 'tv' ? `/tv/${node.tmdbId}` : `/movie/${node.tmdbId}`)}
                   onMouseEnter={() => setHoveredNode(node)}
                   onMouseLeave={() => setHoveredNode(null)}
                   style={{ cursor: 'pointer' }}
@@ -333,7 +388,9 @@ export function MovieMap() {
       )}
 
       {hoveredNode && (
-        <p className="text-xs text-text-muted mt-2">{hoveredNode.title}</p>
+        <p className="text-xs text-text-muted mt-2">
+          {hoveredNode.title} {hoveredNode.mediaType === 'tv' ? '(Dizi)' : '(Film)'}
+        </p>
       )}
     </div>
   );

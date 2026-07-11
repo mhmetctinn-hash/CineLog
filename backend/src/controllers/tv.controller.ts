@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { discoverTvByGenrePaged, getTvShowDetails, searchTvShows, TmdbRequestError } from "../services/tmdb.service";
-import { createTvLog, deleteTvLog, listTvLogs, updateTvLog } from "../services/tvLog.service";
+import { getTvShowDetails, searchTvShows, TmdbRequestError } from "../services/tmdb.service";
+import { createTvLog, deleteTvLog, listTvLogs, listTvLogsPage, updateTvLog } from "../services/tvLog.service";
 import { AlreadyOnWatchlistError, addTvToWatchlist, listTvWatchlist, removeFromTvWatchlist } from "../services/tvWatchlist.service";
 
 const logStatusSchema = z.enum(["watched", "dropped"]);
@@ -13,11 +13,6 @@ const searchSchema = z.object({
 
 const detailsSchema = z.object({
   id: z.string().regex(/^\d+$/, "id must be numeric"),
-});
-
-const discoverSchema = z.object({
-  genre: z.coerce.number().int().positive(),
-  page: z.coerce.number().int().min(1).default(1),
 });
 
 export async function search(req: Request, res: Response) {
@@ -54,23 +49,6 @@ export async function details(req: Request, res: Response) {
   }
 }
 
-export async function discover(req: Request, res: Response) {
-  const parsed = discoverSchema.safeParse(req.query);
-  if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.flatten() });
-  }
-
-  try {
-    const data = await discoverTvByGenrePaged(parsed.data.genre, parsed.data.page);
-    return res.json(data);
-  } catch (err) {
-    if (err instanceof TmdbRequestError) {
-      return res.status(err.status).json({ error: err.message });
-    }
-    throw err;
-  }
-}
-
 const createLogSchema = z.object({
   tmdbId: z.number().int().positive(),
   rating: z.number().int().min(1).max(10).optional(),
@@ -82,6 +60,12 @@ const createLogSchema = z.object({
 
 const listLogsSchema = z.object({
   tmdbId: z.coerce.number().int().positive().optional(),
+});
+
+const listLogsPageSchema = z.object({
+  status: logStatusSchema.optional(),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
 });
 
 const updateLogSchema = z.object({
@@ -110,6 +94,16 @@ export async function listLogs(req: Request, res: Response) {
 
   const logs = await listTvLogs(req.auth!.userId, parsed.data.tmdbId);
   return res.json(logs);
+}
+
+export async function listLogsPage(req: Request, res: Response) {
+  const parsed = listLogsPageSchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  const page = await listTvLogsPage({ userId: req.auth!.userId, ...parsed.data });
+  return res.json(page);
 }
 
 export async function updateLog(req: Request, res: Response) {

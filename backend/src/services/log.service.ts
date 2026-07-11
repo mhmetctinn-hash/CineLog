@@ -146,18 +146,31 @@ interface StatsRow {
   title: string;
   poster_path: string | null;
   tmdb_id: number;
+  media_type: "movie" | "tv";
 }
 
 export async function getStats(userId: string) {
-  const result = await pool.query<StatsRow>(
-    `SELECT movie_logs.rating, movie_logs.watched_date, movies.genre_ids, movies.title, movies.poster_path, movies.tmdb_id
-     FROM movie_logs
-     JOIN movies ON movies.id = movie_logs.movie_id
-     WHERE movie_logs.user_id = $1 AND movie_logs.status = 'watched'
-     ORDER BY movie_logs.watched_date ASC`,
-    [userId],
-  );
-  const rows = result.rows;
+  const [movieResult, tvResult] = await Promise.all([
+    pool.query<Omit<StatsRow, "media_type">>(
+      `SELECT movie_logs.rating, movie_logs.watched_date, movies.genre_ids, movies.title, movies.poster_path, movies.tmdb_id
+       FROM movie_logs
+       JOIN movies ON movies.id = movie_logs.movie_id
+       WHERE movie_logs.user_id = $1 AND movie_logs.status = 'watched'`,
+      [userId],
+    ),
+    pool.query<Omit<StatsRow, "media_type" | "title"> & { name: string }>(
+      `SELECT tv_logs.rating, tv_logs.watched_date, tv_shows.genre_ids, tv_shows.name, tv_shows.poster_path, tv_shows.tmdb_id
+       FROM tv_logs
+       JOIN tv_shows ON tv_shows.id = tv_logs.tv_show_id
+       WHERE tv_logs.user_id = $1 AND tv_logs.status = 'watched'`,
+      [userId],
+    ),
+  ]);
+
+  const rows: StatsRow[] = [
+    ...movieResult.rows.map((r) => ({ ...r, media_type: "movie" as const })),
+    ...tvResult.rows.map((r) => ({ ...r, title: r.name, media_type: "tv" as const })),
+  ].sort((a, b) => a.watched_date.localeCompare(b.watched_date));
 
   const ratedRows = rows.filter((r) => r.rating != null);
   const averageRating = ratedRows.length > 0 ? ratedRows.reduce((sum, r) => sum + (r.rating ?? 0), 0) / ratedRows.length : null;
@@ -184,7 +197,7 @@ export async function getStats(userId: string) {
   const topRated = [...ratedRows]
     .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
     .slice(0, 5)
-    .map((r) => ({ tmdbId: r.tmdb_id, title: r.title, posterPath: r.poster_path, rating: r.rating }));
+    .map((r) => ({ tmdbId: r.tmdb_id, title: r.title, posterPath: r.poster_path, rating: r.rating, mediaType: r.media_type }));
 
   return {
     totalLogs: rows.length,

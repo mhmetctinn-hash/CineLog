@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { logsApi } from '../../api/logs';
-import { GENRE_NAMES } from '../../lib/genres';
+import { resolveGenreName } from '../../lib/genreName';
 import { posterUrl } from '../../lib/tmdbImage';
 
 const MONTH_LABELS = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
@@ -32,13 +32,13 @@ export function Stats() {
   }
 
   if (!data || data.totalLogs === 0) {
-    return <p className="text-text-muted text-center mt-12">İstatistik göstermek için henüz film loglamadınız.</p>;
+    return <p className="text-text-muted text-center mt-12">İstatistik göstermek için henüz film veya dizi loglamadınız.</p>;
   }
 
   const topGenres = data.genreCounts.slice(0, 8);
   const maxGenreCount = topGenres[0]?.count ?? 1;
   const maxMonthlyCount = Math.max(...data.monthlyCounts.map((m) => m.count), 1);
-  const favoriteGenreName = topGenres[0] ? GENRE_NAMES[topGenres[0].genreId] ?? 'Bilinmiyor' : '—';
+  const favoriteGenreName = topGenres[0] ? resolveGenreName(topGenres[0].genreId) : '—';
   const busiestMonth = [...data.monthlyCounts].sort((a, b) => b.count - a.count)[0];
 
   return (
@@ -46,7 +46,7 @@ export function Stats() {
       <h1 className="text-xl font-semibold text-highlight mb-4">İstatistik Paneli</h1>
 
       <div className="flex flex-wrap gap-3 mb-6">
-        <StatTile label="Toplam Film" value={String(data.totalLogs)} />
+        <StatTile label="Toplam İzlenen" value={String(data.totalLogs)} />
         <StatTile label="Ortalama Puanım" value={data.averageRating != null ? (data.averageRating / 2).toFixed(1) : '—'} />
         <StatTile label="Favori Tür" value={favoriteGenreName} />
         <StatTile label="En Yoğun Ay" value={busiestMonth ? `${formatMonth(busiestMonth.month)} (${busiestMonth.count})` : '—'} />
@@ -57,8 +57,8 @@ export function Stats() {
           <h2 className="text-sm font-semibold text-text mb-3">Tür Dağılımı</h2>
           <div className="flex flex-col gap-2">
             {topGenres.map((g) => (
-              <div key={g.genreId} className="flex items-center gap-2" title={`${GENRE_NAMES[g.genreId] ?? g.genreId}: ${g.count} film`}>
-                <span className="text-xs text-text-muted w-20 shrink-0 truncate">{GENRE_NAMES[g.genreId] ?? g.genreId}</span>
+              <div key={g.genreId} className="flex items-center gap-2" title={`${resolveGenreName(g.genreId)}: ${g.count}`}>
+                <span className="text-xs text-text-muted w-20 shrink-0 truncate">{resolveGenreName(g.genreId)}</span>
                 <div className="flex-1 h-3 bg-base rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full"
@@ -92,8 +92,8 @@ export function Stats() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {data.topRated.map((m) => (
             <button
-              key={m.tmdbId}
-              onClick={() => navigate(`/movie/${m.tmdbId}`)}
+              key={`${m.mediaType}-${m.tmdbId}`}
+              onClick={() => navigate(m.mediaType === 'tv' ? `/tv/${m.tmdbId}` : `/movie/${m.tmdbId}`)}
               className="text-left group"
             >
               <div className="aspect-[2/3] rounded-lg overflow-hidden bg-base border border-border">

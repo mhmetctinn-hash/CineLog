@@ -1,0 +1,18 @@
+export const TV_GENRE_NAMES: Record<number, string> = {
+  10759: 'Aksiyon ve Macera',
+  16: 'Animasyon',
+  35: 'Komedi',
+  80: 'Suç',
+  99: 'Belgesel',
+  18: 'Dram',
+  10751: 'Aile',
+  10762: 'Çocuk',
+  9648: 'Gizem',
+  10763: 'Haber',
+  10764: 'Reality',
+  10765: 'Bilim Kurgu ve Fantastik',
+  10766: 'Pembe Dizi',
+  10767: 'Talk Show',
+  10768: 'Savaş ve Politika',
+  37: 'Vahşi Batı',
+};
