@@ -17,9 +17,20 @@ export interface TmdbSearchResult {
   total_results: number;
 }
 
+export interface TmdbVideo {
+  id: string;
+  key: string;
+  name: string;
+  site: string;
+  type: string;
+  official: boolean;
+  iso_639_1: string;
+}
+
 export interface TmdbMovieDetail extends TmdbMovieSummary {
   runtime: number | null;
   genres: { id: number; name: string }[];
+  videos?: { results: TmdbVideo[] };
 }
 
 export type LogStatus = 'watched' | 'dropped';

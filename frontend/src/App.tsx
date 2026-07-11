@@ -9,6 +9,7 @@ import { Profile } from './pages/Profile/Profile';
 import { Watchlist } from './pages/Watchlist/Watchlist';
 import { MovieMap } from './pages/Map/Map';
 import { Stats } from './pages/Stats/Stats';
+import { Category } from './pages/Category/Category';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/map" element={<MovieMap />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/category/:genreId" element={<Category />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

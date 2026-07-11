@@ -45,6 +45,22 @@ export function discoverMoviesByGenre(genreId: number) {
   });
 }
 
+export interface TmdbDiscoverResult {
+  page: number;
+  results: TmdbListItem[];
+  total_pages: number;
+  total_results: number;
+}
+
+export function discoverMoviesByGenrePaged(genreId: number, page: number) {
+  return tmdbFetch<TmdbDiscoverResult>("/discover/movie", {
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+    "vote_count.gte": "50",
+    page: String(page),
+  });
+}
+
 export interface TmdbListItem {
   id: number;
   title: string;

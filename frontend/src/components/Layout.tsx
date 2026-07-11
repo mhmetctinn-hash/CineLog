@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
+import { CategoryMenu } from './CategoryMenu';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -29,6 +30,7 @@ export function Layout() {
               <NavLink to="/" end className={navLinkClass}>
                 Ara
               </NavLink>
+              <CategoryMenu />
               <NavLink to="/profile" className={navLinkClass}>
                 Loglarım
               </NavLink>

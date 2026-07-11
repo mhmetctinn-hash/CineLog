@@ -11,6 +11,7 @@ import { ReviewText } from '../../components/ReviewText';
 import { SpoilerGuard } from '../../components/SpoilerGuard';
 import { ApiError } from '../../api/client';
 import type { LogStatus } from '../../api/types';
+import { pickBestTrailer, youtubeEmbedUrl } from '../../lib/trailer';
 
 const STATUS_LABEL: Record<LogStatus, string> = {
   watched: 'İzledim',
@@ -107,6 +108,7 @@ export function MovieDetail() {
   }
 
   const src = posterUrl(movie.poster_path, 'w500');
+  const trailer = pickBestTrailer(movie.videos?.results);
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -128,6 +130,25 @@ export function MovieDetail() {
           {movie.genres?.length ? ` · ${movie.genres.map((g) => g.name).join(', ')}` : ''}
         </p>
         <p className="mt-4 text-sm leading-relaxed">{movie.overview}</p>
+
+        {trailer && (
+          <div className="mt-4">
+            <div className="aspect-video w-full max-w-xl rounded-lg overflow-hidden bg-black">
+              <iframe
+                src={youtubeEmbedUrl(trailer.key)}
+                title={trailer.name}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+            {trailer.iso_639_1 !== 'tr' && (
+              <p className="text-xs text-text-muted mt-1">
+                Türkçe altyazı için oynatıcının CC (altyazı) düğmesinden dili değiştirebilirsiniz.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3 mt-6">
           <button
