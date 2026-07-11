@@ -96,12 +96,19 @@
 - **Karşılaşılan sorun ve çözümü:** `<img crossOrigin="anonymous">` özniteliği TMDB CDN görselinin tarayıcıda hiç render edilmemesine yol açtı (`naturalWidth: 0`). Attribute kaldırıldı; `html2canvas`'ın kendi `useCORS: true` seçeneği görseli canvas'a aktarmak için yeterli.
 - Commit: "Add social share card PNG export"
 
+### 11. Öneri Motoru (AI Recommendation)
+- `backend/src/services/tmdb.service.ts` — `getMovieRecommendations` (TMDB `/movie/{id}/recommendations`) ve `discoverMoviesByGenre` (TMDB `/discover/movie`) eklendi.
+- `backend/src/services/recommendation.service.ts` — algoritma: kullanıcının 7/10+ puan verdiği loglar "seed" olarak seçiliyor (en fazla 5), her seed için TMDB önerileri toplanıp kaç seed tarafından önerildiğine göre puanlanıyor (eşitlikte TMDB `vote_average` ile); zaten loglanmış/watchlist'teki filmler eleniyor. Yeterli seed yoksa kullanıcının en sık logladığı türe göre TMDB `discover` ile tamamlanıyor.
+- `GET /api/tmdb/recommendations` endpoint'i eklendi.
+- Frontend: `Search` sayfasında arama kutusu boşken **"Senin İçin Önerilenler"** bölümü — her öneri kartında "hangi filmi sevdiğin için önerildiği" gösteriliyor.
+- Gerçek test verisiyle doğrulandı (Godfather → Godfather Part II/GoodFellas/Casino, Fight Club → Requiem for a Dream/Trainspotting, Passengers → Interstellar/Her gibi mantıklı eşleşmeler).
+- Commit: "Add AI-style recommendation engine"
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
-- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, ve Sosyal Paylaşım Kartı.
+- Roadmap Adım 1-4 tamamlandı: proje hazırlığı, backend + DB + Auth, TMDB entegrasyonu, loglar/watchlist, frontend (React + Vite + PWA), Film Haritası + gelişmiş log filtreleri, İstatistik Paneli, Sosyal Paylaşım Kartı, ve Öneri Motoru.
 - Spesifikasyon belgesine (`cinelog_proje_dokumani claude.md`) göre henüz eksik olanlar:
   - **MVP:** "Yarım Bırakıldı" izleme durumu (şu an sadece İzlendi/İzlenecek var), spoiler bayraklı/zengin metin inceleme notu, cursor-based pagination.
-  - **2. Aşama:** AI öneri motoru.
   - **Altyapı:** Rate limiting, test (Jest/Vitest/Playwright), CI/CD (GitHub Actions), Sentry, Gitflow (şu an her şey doğrudan `main`'e gidiyor).
 - **Sıradaki adım için düşünülebilecekler:** yukarıdaki eksiklerden biri, ya da çok sayıda film loglandığında Film Haritası'ndaki tür kümelerinin okunabilirliğini korumak.
