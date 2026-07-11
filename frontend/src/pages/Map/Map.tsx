@@ -39,7 +39,7 @@ const CLUSTER_COLORS = ['#1e6e63', '#b45309', '#6d28d9', '#be123c', '#0369a1', '
 
 export function MovieMap() {
   const navigate = useNavigate();
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const nodesRef = useRef<GraphNode[]>([]);
   const edgesRef = useRef<CollectionEdge[]>([]);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);

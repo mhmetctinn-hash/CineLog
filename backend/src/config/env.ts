@@ -7,4 +7,5 @@ export const env = {
   jwtSecret: process.env.JWT_SECRET ?? "",
   tmdbApiKey: process.env.TMDB_API_KEY ?? "",
   tmdbBaseUrl: process.env.TMDB_BASE_URL ?? "https://api.themoviedb.org/3",
+  sentryDsn: process.env.SENTRY_DSN ?? "",
 };
