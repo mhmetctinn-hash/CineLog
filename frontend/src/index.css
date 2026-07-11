@@ -16,6 +16,86 @@ html {
   color-scheme: dark;
 }
 
+@keyframes cine-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(214, 28, 44, 0.35); }
+  50% { text-shadow: 0 0 14px rgba(214, 28, 44, 0.75); }
+}
+
+@keyframes log-shimmer {
+  0% { background-position: 160% center; }
+  100% { background-position: -60% center; }
+}
+
+@keyframes clap-swing {
+  0%, 40%, 100% { transform: rotate(-22deg); }
+  52% { transform: rotate(3deg); }
+  62% { transform: rotate(-6deg); }
+  72% { transform: rotate(-22deg); }
+}
+
+@keyframes clap-flash {
+  0%, 48%, 100% { opacity: 0; }
+  53% { opacity: 1; }
+  60% { opacity: 0; }
+}
+
+@keyframes runner-dash {
+  0% { transform: translateX(-14%); opacity: 0; }
+  10% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translateX(420%); opacity: 0; }
+}
+
+.cine-text {
+  color: var(--color-primary);
+  animation: cine-glow 3.2s ease-in-out infinite;
+}
+
+.log-text {
+  background: linear-gradient(100deg, var(--color-highlight) 30%, #fff6cf 45%, var(--color-highlight) 60%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: log-shimmer 4.5s linear infinite;
+}
+
+.clapper-arm {
+  transform-origin: 5px 13px;
+  transform: rotate(-22deg);
+  transition: transform 0.2s ease;
+}
+
+.logo-mark:hover .clapper-arm {
+  animation: clap-swing 0.7s ease-in-out 1;
+}
+
+.clapper-flash {
+  opacity: 0;
+}
+
+.logo-mark:hover .clapper-flash {
+  animation: clap-flash 0.7s ease-in-out 1;
+}
+
+.logo-runner {
+  opacity: 0;
+}
+
+.logo-mark:hover .logo-runner {
+  animation: runner-dash 1.2s cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-text,
+  .log-text,
+  .logo-mark:hover .clapper-arm,
+  .logo-mark:hover .clapper-flash,
+  .logo-mark:hover .logo-runner {
+    animation: none !important;
+  }
+}
+
 body {
   margin: 0;
   background: var(--color-base);

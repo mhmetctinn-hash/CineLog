@@ -161,7 +161,17 @@
 
 ---
 
+### 17. Animasyonlu Logo
+- Düz metin logo (`text-highlight` renkli "CineLog" yazısı) yerine yeni `Logo.tsx` bileşeni: inline SVG klaket (clapperboard) ikonu + iki renkli marka yazısı ("Cine" kırmızı + nabız gibi yanıp sönen kırmızı parıltı, "Log" altın rengi ve sürekli parlayan bir ışık huzmesi geçişiyle — sinema tabelası hissi).
+- **Hover etkileşimi:** klaket kolu gerçekten "çat" diye kapanıyor (kısa bir sıçrama/geri tepme ile), kapanma anında bir flaş efekti var, ve logo yazısının altından jenerik bir aksiyon silüeti (koşan bir figür) soldan sağa koşarak geçiyor — küçük bir "easter egg".
+- **Not (telif hakkı):** Kullanıcı ilhamını Spider-Man ve RDR2/Arthur Morgan'dan almak istedi; bu karakterler Marvel/Disney ve Rockstar'a ait telifli tasarımlar olduğu için birebir çizilmedi. Onun yerine aynı "sinematik enerji" hissini veren özgün bir konsept (klaket + jenerik koşan silüet) uygulandı.
+- Tüm animasyonlar `prefers-reduced-motion: reduce` durumunda devre dışı kalıyor (erişilebilirlik).
+- Tarayıcıda doğrulandı: `:hover` durumu ve `animation-name` (`clap-swing`, `runner-dash`) CDP ile teyit edildi, konsol hatası yok.
+- Commit: "Add animated clapperboard logo with cinematic hover easter egg" (`feature/animated-logo` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman ve **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede) eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
 - Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı.
