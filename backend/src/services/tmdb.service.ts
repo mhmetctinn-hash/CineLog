@@ -25,16 +25,28 @@ async function tmdbFetch<T>(path: string, params: Record<string, string> = {}): 
   return (await res.json()) as T;
 }
 
+// TMDB natively serves localized title/overview/genre text for this
+// language — no translation API or LLM call needed.
+const TR = "tr-TR";
+// append_to_response's videos sub-request inherits the top-level `language`,
+// which would otherwise limit trailers to the (rare) Turkish-dubbed ones;
+// this widens it back to Turkish, English, and unlabeled videos.
+const VIDEO_LANGS = "tr,en,null";
+
 export function searchMovies(query: string, page: number) {
-  return tmdbFetch("/search/movie", { query, page: String(page) });
+  return tmdbFetch("/search/movie", { query, page: String(page), language: TR });
 }
 
 export function getMovieDetails(id: string) {
-  return tmdbFetch(`/movie/${id}`, { append_to_response: "credits,videos" });
+  return tmdbFetch(`/movie/${id}`, {
+    append_to_response: "credits,videos",
+    language: TR,
+    include_video_language: VIDEO_LANGS,
+  });
 }
 
 export function getMovieRecommendations(id: string) {
-  return tmdbFetch<{ results: TmdbListItem[] }>(`/movie/${id}/recommendations`, {});
+  return tmdbFetch<{ results: TmdbListItem[] }>(`/movie/${id}/recommendations`, { language: TR });
 }
 
 // Used only as a recommendation fallback (favorite-genre discovery), never for
@@ -45,6 +57,7 @@ export function discoverMoviesByGenre(genreId: number) {
     with_genres: String(genreId),
     sort_by: "vote_average.desc",
     "vote_count.gte": "200",
+    language: TR,
   });
 }
 
@@ -57,9 +70,13 @@ export interface TmdbListItem {
 }
 
 export function searchTvShows(query: string, page: number) {
-  return tmdbFetch("/search/tv", { query, page: String(page) });
+  return tmdbFetch("/search/tv", { query, page: String(page), language: TR });
 }
 
 export function getTvShowDetails(id: string) {
-  return tmdbFetch(`/tv/${id}`, { append_to_response: "credits,videos" });
+  return tmdbFetch(`/tv/${id}`, {
+    append_to_response: "credits,videos",
+    language: TR,
+    include_video_language: VIDEO_LANGS,
+  });
 }
