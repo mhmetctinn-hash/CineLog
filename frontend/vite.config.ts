@@ -13,8 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'CineLog',
-        short_name: 'CineLog',
+        name: 'SineVA',
+        short_name: 'SineVA',
         description: 'Kişisel film günlüğü ve analiz platformu',
         theme_color: '#08090d',
         background_color: '#08090d',

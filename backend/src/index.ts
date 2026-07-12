@@ -16,5 +16,5 @@ process.on("uncaughtException", (err) => {
 });
 
 app.listen(env.port, () => {
-  console.log(`CineLog backend listening on port ${env.port}`);
+  console.log(`SineVA backend listening on port ${env.port}`);
 });

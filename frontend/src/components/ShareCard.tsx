@@ -33,7 +33,7 @@ export function ShareCard({ title, year, posterPath, rating, review, watchedDate
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = `${title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-cinelog.png`;
+      link.download = `${title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-sineva.png`;
       link.click();
     } finally {
       setDownloading(false);

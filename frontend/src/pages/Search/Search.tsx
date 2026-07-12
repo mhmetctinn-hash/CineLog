@@ -31,7 +31,7 @@ function Recommendations() {
   if (!data || data.length === 0) {
     return (
       <p className="text-text-muted text-center mt-12">
-        Sana özel öneriler için birkaç film loglayıp puanla — CineLog beğendiğin türlere göre önerecek.
+        Sana özel öneriler için birkaç film loglayıp puanla — SineVA beğendiğin türlere göre önerecek.
       </p>
     );
   }
