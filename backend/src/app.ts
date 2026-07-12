@@ -13,6 +13,11 @@ import { watchlistRouter } from "./routes/watchlist.routes";
 
 export const app = express();
 
+// Render (and most PaaS) sit the app behind a reverse proxy; trusting the
+// first hop gives express-rate-limit and req.ip the real client IP from
+// X-Forwarded-For instead of the proxy's.
+app.set("trust proxy", 1);
+
 app.use(cors({ credentials: true }));
 app.use(express.json());
 app.use(cookieParser());

@@ -199,7 +199,23 @@
 
 ---
 
+### 21. Render Deployment Kurulumu
+- Kullanıcı önce Netlify'da denedi: sadece frontend ayağa kalktı, backend (sürekli çalışan Express + Postgres bağlantı havuzu) Netlify'ın statik site + serverless function modeline uymadığı için giriş başarısız oldu.
+- **Karar:** Render.com — hem backend (Web Service, Express değişmeden çalışır) hem frontend (Static Site) aynı hesap altında, tamamen ücretsiz katmanda.
+- **Deploy'u engelleyecek iki sorun bulunup düzeltildi:**
+  1. Frontend'in API client'ı (`/api` göreli path) prod'da frontend ve backend farklı subdomain'lerde olduğu için backend'e ulaşamazdı. **Çözüm:** Render Static Site'ın `routes` rewrite/proxy özelliği — `/api/*` istekleri Render tarafında (tarayıcıya görünmeden) backend servisine proxy'leniyor. Böylece tarayıcı açısından her şey aynı origin, CORS veya `sameSite=None`+cross-site cookie gibi karmaşık ayarlara hiç gerek kalmadı.
+  2. `express-rate-limit`, reverse proxy arkasında `trust proxy` ayarlanmazsa X-Forwarded-For header'ını güvenilir bulmayıp hata fırlatabiliyor. `app.set("trust proxy", 1)` eklendi.
+- `render.yaml` (repo kökünde) — iki servisi tanımlayan Blueprint: `cinelog-backend` (Node Web Service, `healthCheckPath: /api/health`, `JWT_SECRET` otomatik üretiliyor, `DATABASE_URL`/`TMDB_API_KEY`/`SENTRY_DSN` dashboard'dan elle girilecek secret'lar) ve `cinelog-frontend` (Static Site, `/api/*` rewrite + SPA fallback `/*` → `/index.html`).
+- `backend/tsconfig.json`'a `exclude: ["src/__tests__"]` eklendi — prod build'inde artık test dosyaları `dist`'e derlenmiyor (Jest'i etkilemedi, ayrıca doğrulandı).
+- Migration'lara production'da yeniden ihtiyaç yok: backend nereden bağlanırsa bağlansın aynı Supabase veritabanını kullanıyor, o veritabanı zaten migrate edilmiş durumda.
+- Backend ve frontend prod build'leri lokal olarak doğrulandı (`npm run build` her ikisinde de başarılı), backend testleri (25/25) tekrar koşturuldu.
+- **Kalan adımlar (Render dashboard'da, kullanıcı tarafından yapılmalı):** GitHub reposunu Render'a bağlamak, "Blueprint" olarak `render.yaml`'ı deploy etmek, `DATABASE_URL`/`TMDB_API_KEY` secret'larını girmek — bunlar hesap bağlama ve gizli bilgi girişi gerektirdiği için asistan tarafından yapılamaz.
+- Commit: "..." (`feature/render-deployment-setup` → `develop` → `main`)
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), ve Trabzonspor renkli, tek parça ışık süpüren animasyonlu logo eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
-- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması, deployment (Vercel/Render).
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), Trabzonspor renkli animasyonlu logo, ve Render deployment altyapısı eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- **Sıradaki adım:** Kullanıcının Render dashboard'da hesap oluşturup GitHub reposunu bağlaması ve `render.yaml`'ı Blueprint olarak deploy etmesi gerekiyor (secret env var'lar dahil) — bu adım asistan tarafından yapılamaz, kullanıcı tarafında.
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması.
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı. Vite dev server garip/eski davranış sergilerse (değişiklikler yansımıyorsa), önce `node_modules/.vite` silinip sunucu yeniden başlatılmalı — bu oturumda birkaç kez işe yaradı.
