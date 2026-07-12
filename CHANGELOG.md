@@ -210,7 +210,14 @@
 - Migration'lara production'da yeniden ihtiyaç yok: backend nereden bağlanırsa bağlansın aynı Supabase veritabanını kullanıyor, o veritabanı zaten migrate edilmiş durumda.
 - Backend ve frontend prod build'leri lokal olarak doğrulandı (`npm run build` her ikisinde de başarılı), backend testleri (25/25) tekrar koşturuldu.
 - **Kalan adımlar (Render dashboard'da, kullanıcı tarafından yapılmalı):** GitHub reposunu Render'a bağlamak, "Blueprint" olarak `render.yaml`'ı deploy etmek, `DATABASE_URL`/`TMDB_API_KEY` secret'larını girmek — bunlar hesap bağlama ve gizli bilgi girişi gerektirdiği için asistan tarafından yapılamaz.
-- Commit: "..." (`feature/render-deployment-setup` → `develop` → `main`)
+- Commit: "Add Render deployment blueprint (backend web service + frontend static site)" (`feature/render-deployment-setup` → `develop` → `main`)
+
+### 22. Render Build Hatası: `moduleResolution` Deprecation
+- İlk deploy denemesinde `cinelog-frontend` başarıyla ayağa kalktı ama `cinelog-backend` build'i başarısız oldu: `tsconfig.json(5,25): error TS5107: Option 'moduleResolution=node10' is deprecated`.
+- Render'ın build ortamındaki TypeScript, `backend/tsconfig.json`'daki `"moduleResolution": "node"` ayarını (TS'in eski dahili adı `node10`) artık **hata** olarak işliyordu; yerelde aynı `npm run build` sessizce/hatasız geçiyordu (muhtemelen farklı bir TS patch sürümü nedeniyle).
+- Önce Render'ın önerdiği `"ignoreDeprecations": "6.0"` denendi, ama yerel TS sürümü bu değeri geçersiz buldu (`TS5103`). Kök sorunu ortadan kaldırmak için `"moduleResolution": "node"` satırı tamamen kaldırıldı — `module: "commonjs"` zaten aynı çözümleme davranışını varsayılan olarak veriyor, dolayısıyla hiçbir işlevsel değişiklik olmadan uyarı/hata da ortadan kalktı.
+- Yerelde doğrulandı: temiz `npm run build` hatasız geçti, `trust proxy` ayarının derlenmiş `dist/app.js`'e doğru yansıdığı kontrol edildi, testler (25/25) tekrar geçti.
+- Commit: "Fix Render backend build failure from deprecated tsconfig moduleResolution" (`fix/render-backend-build-tsconfig` → `develop` → `main`)
 
 ---
 
