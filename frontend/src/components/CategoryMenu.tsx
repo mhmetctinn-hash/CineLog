@@ -10,7 +10,7 @@ function genresPresentIn(items: { genreIds: number[] }[], names: Record<number, 
   return [...ids].sort((a, b) => names[a].localeCompare(names[b], 'tr'));
 }
 
-export function CategoryMenu() {
+export function CategoryMenu({ onNavigate }: { onNavigate?: () => void } = {}) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -33,6 +33,7 @@ export function CategoryMenu() {
 
   function go(mediaType: 'movie' | 'tv', genreId: number) {
     setOpen(false);
+    onNavigate?.();
     navigate(`/category/${mediaType}/${genreId}`);
   }
 
