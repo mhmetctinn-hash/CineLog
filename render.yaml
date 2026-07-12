@@ -5,7 +5,10 @@ services:
     plan: free
     region: frankfurt
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # --include=dev: NODE_ENV=production below makes plain `npm install` skip
+    # devDependencies (typescript, @types/*), which is what actually built the
+    # TS compiler and made "tsc" resolve to some unrelated transitive copy.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:

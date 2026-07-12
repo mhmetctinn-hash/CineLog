@@ -226,6 +226,14 @@
 - Yerelde doğrulandı: temiz `npm run build` hiçbir uyarı/hata vermedi, `dist/` tam üretildi, testler (25/25) geçti, ve **derlenmiş sunucu gerçekten çalıştırılıp** (`node dist/index.js`) `/api/health`'in `{"status":"ok"}` döndüğü teyit edildi.
 - Commit: "Pin TypeScript to a stable version to fix Render build" (`fix/pin-typescript-version` → `develop` → `main`)
 
+### 24. Asıl Kök Sebep: `NODE_ENV=production` devDependencies'i Kurulumdan Düşürüyormuş
+- Sürüm sabitleme de işe yaramadı — **aynı** `TS5107` hatası birebir aynı satır/sütunla tekrar çıktı. Render build logunun tamamı istenip incelendiğinde asıl sebep bulundu: `npm install`, sadece **142 paket** kurmuş (yerelde devDependencies dahil kurulumda 490 paket kuruluyor).
+- Sebep: `render.yaml`'da `NODE_ENV=production` env var'ı tanımlı, ve bu değişken build aşamasında da geçerli oluyor. npm'in standart davranışı: `NODE_ENV=production` iken düz `npm install`, `devDependencies`'i **atlıyor** — yani bizim özenle sabitlediğimiz `typescript@5.6.3` (bir devDependency) hiç kurulmuyordu; `tsc` komutu bunun yerine başka bir paketin transitive/iç bağımlılığı olan tamamen farklı (ve deprecation'ı hata sayan) bir TypeScript kopyasını çalıştırıyordu. Bu yüzden versiyon sabitleme denemesi hiçbir fark yaratmamıştı.
+- Yerelde `NODE_ENV=production npm install` çalıştırılarak bu davranış birebir yeniden üretildi (142 paket — Render logundakiyle aynı sayı), sorunu kesin olarak doğruladı.
+- **Çözüm:** `render.yaml`'daki backend `buildCommand`'ı `npm install --include=dev && npm run build` olarak değiştirildi — bu bayrak, `NODE_ENV` ne olursa olsun devDependencies'in kurulmasını zorluyor. Runtime'da `NODE_ENV=production` olmaya devam ediyor (cookie `secure` bayrağı vb. hâlâ doğru davranıyor), sadece build aşamasında devDependencies'e erişim garanti ediliyor.
+- Yerelde `NODE_ENV=production npm install --include=dev` ile 490 paketin kurulduğu ve `tsc --version`'ın doğru `5.6.3`'ü verdiği doğrulandı; temiz build + testler (25/25) tekrar geçti.
+- Commit: "Force devDependencies install in Render build despite NODE_ENV=production" (`fix/render-devdeps-install` → `develop` → `main`)
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
