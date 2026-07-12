@@ -33,7 +33,7 @@ export function Layout() {
                 </NavLink>
                 <CategoryMenu />
                 <NavLink to="/profile" className={navLinkClass}>
-                  Loglarım
+                  İzlediklerim
                 </NavLink>
                 <NavLink to="/watchlist" className={navLinkClass}>
                   İzleme Listesi
@@ -74,7 +74,7 @@ export function Layout() {
             </NavLink>
             <CategoryMenu onNavigate={closeMobile} />
             <NavLink to="/profile" onClick={closeMobile} className={mobileNavLinkClass}>
-              Loglarım
+              İzlediklerim
             </NavLink>
             <NavLink to="/watchlist" onClick={closeMobile} className={mobileNavLinkClass}>
               İzleme Listesi

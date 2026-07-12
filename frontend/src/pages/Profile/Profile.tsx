@@ -133,7 +133,7 @@ export function Profile() {
 
   return (
     <div>
-      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">Loglarım</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">İzlediklerim</h1>
 
       <div className="flex gap-2 mb-4">
         {(['movie', 'tv'] as Mode[]).map((m) => (

@@ -112,12 +112,12 @@ export function MovieDetail() {
     return <p className="text-text-muted text-center mt-12">Yükleniyor...</p>;
   }
 
-  const src = posterUrl(movie.poster_path, 'w500');
+  const src = posterUrl(movie.poster_path, 'w780');
   const trailer = pickBestTrailer(movie.videos?.results);
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
-      <div className="w-full md:w-64 shrink-0">
+    <div className="flex flex-col md:flex-row gap-8">
+      <div className="w-full md:w-96 lg:w-[420px] shrink-0">
         {src ? (
           <img src={src} alt={movie.title} className="w-full rounded-lg" />
         ) : (
