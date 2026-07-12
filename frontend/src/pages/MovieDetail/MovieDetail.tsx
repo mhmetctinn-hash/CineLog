@@ -128,13 +128,13 @@ export function MovieDetail() {
       </div>
 
       <div className="flex-1">
-        <h1 className="text-3xl lg:text-4xl font-semibold text-highlight">{movie.title}</h1>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-accent">{movie.title}</h1>
         <p className="text-text-muted text-sm mt-1">
           {movie.release_date?.slice(0, 4)}
           {movie.runtime ? ` · ${movie.runtime} dk` : ''}
           {movie.genres?.length ? ` · ${movie.genres.map((g) => g.name).join(', ')}` : ''}
         </p>
-        <p className="mt-4 text-sm leading-relaxed">{movie.overview}</p>
+        <p className="mt-4 text-base text-text/90 leading-relaxed border-l-2 border-accent/40 pl-4">{movie.overview}</p>
 
         {trailer && (
           <div className="mt-4">

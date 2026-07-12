@@ -130,13 +130,13 @@ export function TvDetail() {
       </div>
 
       <div className="flex-1">
-        <h1 className="text-3xl lg:text-4xl font-semibold text-highlight">{show.name}</h1>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-accent">{show.name}</h1>
         <p className="text-text-muted text-sm mt-1">
           {show.first_air_date?.slice(0, 4)}
           {show.number_of_seasons ? ` · ${show.number_of_seasons} sezon` : ''}
           {show.genres?.length ? ` · ${show.genres.map((g) => g.name).join(', ')}` : ''}
         </p>
-        <p className="mt-4 text-sm leading-relaxed">{show.overview}</p>
+        <p className="mt-4 text-base text-text/90 leading-relaxed border-l-2 border-accent/40 pl-4">{show.overview}</p>
 
         {trailer && (
           <div className="mt-4">
