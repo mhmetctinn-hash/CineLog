@@ -219,6 +219,13 @@
 - Yerelde doğrulandı: temiz `npm run build` hatasız geçti, `trust proxy` ayarının derlenmiş `dist/app.js`'e doğru yansıdığı kontrol edildi, testler (25/25) tekrar geçti.
 - Commit: "Fix Render backend build failure from deprecated tsconfig moduleResolution" (`fix/render-backend-build-tsconfig` → `develop` → `main`)
 
+### 23. Bir Önceki Düzeltme Yanlış Çıktı: TypeScript Sürümü Sabitlendi
+- `"moduleResolution": "node"` satırını tamamen kaldırmak Render'da build'i **daha da bozdu**: TS, `@types/node`/`@types/express`/`@types/bcrypt`/`@types/jsonwebtoken` paketlerini hiç bulamaz oldu (`process`, `Buffer`, `__dirname` gibi Node globalleri "cannot find name" hatası verdi) — yani satırın kaldırılması, Render'ın TS sürümünde varsayılanı "classic" çözümleme moduna düşürmüş (bu mod `node_modules/@types` otomatik dahil etmiyor).
+- Bu, yerel ve Render ortamlarındaki TypeScript'in **gerçekten farklı davrandığının** kanıtıydı (aynı `package-lock.json` sürümüne rağmen). `"ignoreDeprecations"` için doğru değer de ortama göre değişiyordu (yerelde `"5.0"` kabul edildi, Render `"6.0"` öneriyordu) — bu, sürüme bağlı kırılgan bir çözüm olurdu.
+- **Kalıcı çözüm:** `typescript` bağımlılığı `^5.6.3` yerine tam olarak `5.6.3` sürümüne sabitlendi (caret kaldırıldı) — bu, deprecation'ın henüz hata olarak işaretlenmediği istikrarlı bir sürüm. `moduleResolution: "node"` da geri eklendi (doğru/orijinal haliyle). Böylece hem yerel hem Render aynı TS sürümünü kullanacak, bu sınıf sorun bir daha çıkmayacak.
+- Yerelde doğrulandı: temiz `npm run build` hiçbir uyarı/hata vermedi, `dist/` tam üretildi, testler (25/25) geçti, ve **derlenmiş sunucu gerçekten çalıştırılıp** (`node dist/index.js`) `/api/health`'in `{"status":"ok"}` döndüğü teyit edildi.
+- Commit: "Pin TypeScript to a stable version to fix Render build" (`fix/pin-typescript-version` → `develop` → `main`)
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
