@@ -242,8 +242,20 @@
 
 ---
 
+### 26. Canlıya Alma Tamamlandı — Uçtan Uca Doğrulandı
+- Kullanıcı Render dashboard'unda hesap açtı, GitHub reposunu bağladı, Blueprint'i deploy etti, secret'ları (`DATABASE_URL`, `TMDB_API_KEY`) girdi. Birkaç build hatası birlikte çözüldü (bkz. #22-25).
+- **https://cinelog-frontend.onrender.com** üzerinde gerçek kullanıcı akışı test edildi: kayıt ol (`POST /api/auth/register` → 201, cookie set edildi, otomatik giriş), TMDB film araması (Inception) gerçek sonuç döndü. Test hesabı sonrasında veritabanından silindi.
+- CineLog artık canlıda ve kişisel kullanıma hazır. Backend ücretsiz katmanda 15 dakika hareketsizlikte uykuya geçiyor, ilk istekte ~30-50 saniye soğuk başlangıç gecikmesi bekleniyor (bilinen/kabul edilmiş bir durum, spec'te belirtilmişti).
+- Kullanıcının ikinci (Netlify'daki) projesi şimdilik taşınmıyor, ayrı kalıyor.
+
+---
+
 ## Şu Anki Durum (Nerede Kaldık)
-- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), Trabzonspor renkli animasyonlu logo, ve Render deployment altyapısı eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
-- **Sıradaki adım:** Kullanıcının Render dashboard'da hesap oluşturup GitHub reposunu bağlaması ve `render.yaml`'ı Blueprint olarak deploy etmesi gerekiyor (secret env var'lar dahil) — bu adım asistan tarafından yapılamaz, kullanıcı tarafında.
-- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması.
+- **CineLog canlıda ve tam çalışır durumda:** https://cinelog-frontend.onrender.com (backend: `cinelog-backend-ouzz.onrender.com`, Render'da Blueprint olarak yönetiliyor).
+- **Spesifikasyondaki MVP ve 2. Aşama'nın tamamı bitti**, üzerine kategori navigasyonu (kişisel koleksiyon bazlı), fragman, **dizi (TV) entegrasyonu** (arama/detay/log/watchlist/pagination/istatistik/harita — filmlerle tam paritede), Trabzonspor renkli animasyonlu logo, ve tam çalışan Render deployment'ı eklendi. CineLog artık uçtan uca kişisel bir film+dizi takip platformu; hiçbir yerde TMDB'nin tüm kataloğu taranmıyor, her şey kullanıcının kendi verisinden türetiliyor.
+- Kalanlar tamamen opsiyonel/ileri seviye: **3. Aşama** çevrimdışı destek (bilinçli olarak MVP dışı bırakılmıştı), gerçek bir Sentry projesine DSN bağlanması (şu an boş/no-op).
+- **Render deploy sırasında öğrenilen dersler** (ileride benzer bir proje deploy edilirse hatırlanmalı):
+  - `NODE_ENV=production` iken düz `npm install` devDependencies'i atlıyor — build için TypeScript/`@types/*` gerekiyorsa `buildCommand`'a `--include=dev` eklenmeli.
+  - Render'ın atadığı gerçek servis URL'i, istenen isimle aynı olmayabilir (çakışmada rastgele ek geliyor) — `render.yaml`'daki proxy/rewrite hedeflerini gerçek URL netleşince güncellemek gerekiyor.
+  - Frontend (Static Site) ve backend (Web Service) farklı origin'lerde olduğunda, Render'ın `routes` rewrite/proxy özelliği CORS ve cross-site cookie sorunlarını tamamen ortadan kaldırıyor (tarayıcı için her şey aynı origin gibi görünüyor).
 - **Not:** Bundan sonraki geliştirmeler Gitflow'a uygun şekilde `develop`'tan açılan `feature/*` dallarında yapılmalı. Vite dev server garip/eski davranış sergilerse (değişiklikler yansımıyorsa), önce `node_modules/.vite` silinip sunucu yeniden başlatılmalı — bu oturumda birkaç kez işe yaradı.
