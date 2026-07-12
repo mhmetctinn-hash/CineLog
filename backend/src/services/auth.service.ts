@@ -50,6 +50,19 @@ export async function loginUser(email: string, password: string): Promise<string
   return signToken({ userId: user.id, email: user.email });
 }
 
+export async function getUserById(userId: string): Promise<Pick<User, "email" | "avatar_url"> | null> {
+  const result = await pool.query<User>("SELECT email, avatar_url FROM users WHERE id = $1", [userId]);
+  return result.rows[0] ?? null;
+}
+
+export async function updateAvatar(userId: string, avatarUrl: string): Promise<void> {
+  await pool.query("UPDATE users SET avatar_url = $1 WHERE id = $2", [avatarUrl, userId]);
+}
+
+export async function removeAvatar(userId: string): Promise<void> {
+  await pool.query("UPDATE users SET avatar_url = NULL WHERE id = $1", [userId]);
+}
+
 function signToken(payload: AuthPayload): string {
   return jwt.sign(payload, env.jwtSecret, { expiresIn: TOKEN_EXPIRY });
 }

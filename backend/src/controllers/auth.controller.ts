@@ -4,13 +4,26 @@ import { env } from "../config/env";
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
+  getUserById,
   loginUser,
   registerUser,
+  removeAvatar,
+  updateAvatar,
+  verifyToken,
 } from "../services/auth.service";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+});
+
+const MAX_AVATAR_DATA_URL_LENGTH = 700_000; // ~500KB image, base64-encoded
+
+const avatarSchema = z.object({
+  avatarUrl: z
+    .string()
+    .startsWith("data:image/")
+    .max(MAX_AVATAR_DATA_URL_LENGTH, "Görsel çok büyük"),
 });
 
 const COOKIE_OPTIONS = {
@@ -29,7 +42,7 @@ export async function register(req: Request, res: Response) {
   try {
     const token = await registerUser(parsed.data.email, parsed.data.password);
     res.cookie("token", token, COOKIE_OPTIONS);
-    return res.status(201).json({ email: parsed.data.email });
+    return res.status(201).json({ email: parsed.data.email, avatarUrl: null });
   } catch (err) {
     if (err instanceof EmailAlreadyRegisteredError) {
       return res.status(409).json({ error: err.message });
@@ -47,7 +60,9 @@ export async function login(req: Request, res: Response) {
   try {
     const token = await loginUser(parsed.data.email, parsed.data.password);
     res.cookie("token", token, COOKIE_OPTIONS);
-    return res.json({ email: parsed.data.email });
+    const { userId } = verifyToken(token);
+    const user = await getUserById(userId);
+    return res.json({ email: parsed.data.email, avatarUrl: user?.avatar_url ?? null });
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
       return res.status(401).json({ error: err.message });
@@ -62,5 +77,21 @@ export async function logout(_req: Request, res: Response) {
 }
 
 export async function me(req: Request, res: Response) {
-  return res.json({ email: req.auth!.email });
+  const user = await getUserById(req.auth!.userId);
+  return res.json({ email: req.auth!.email, avatarUrl: user?.avatar_url ?? null });
+}
+
+export async function setAvatar(req: Request, res: Response) {
+  const parsed = avatarSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  await updateAvatar(req.auth!.userId, parsed.data.avatarUrl);
+  return res.json({ avatarUrl: parsed.data.avatarUrl });
+}
+
+export async function deleteAvatar(req: Request, res: Response) {
+  await removeAvatar(req.auth!.userId);
+  return res.status(204).send();
 }
