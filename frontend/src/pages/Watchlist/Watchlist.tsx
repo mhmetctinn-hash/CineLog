@@ -37,7 +37,7 @@ export function Watchlist() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-4">İzleme Listesi</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">İzleme Listesi</h1>
 
       <div className="flex gap-2 mb-4">
         {(['movie', 'tv'] as Mode[]).map((m) => (
@@ -58,7 +58,7 @@ export function Watchlist() {
         <p className="text-text-muted text-center mt-12">İzleme listeniz boş.</p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
         {mode === 'movie'
           ? movieItems?.map((item) => (
               <MovieCard

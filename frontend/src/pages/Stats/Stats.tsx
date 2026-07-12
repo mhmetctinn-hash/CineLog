@@ -43,7 +43,7 @@ export function Stats() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-4">İstatistik Paneli</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">İstatistik Paneli</h1>
 
       <div className="flex flex-wrap gap-3 mb-6">
         <StatTile label="Toplam İzlenen" value={String(data.totalLogs)} />
@@ -78,7 +78,7 @@ export function Stats() {
               <div key={m.month} className="flex-1 flex flex-col items-center justify-end h-full" title={`${m.month}: ${m.count} film`}>
                 <div
                   className="w-full rounded-t"
-                  style={{ height: `${(m.count / maxMonthlyCount) * 100}%`, minHeight: 2, backgroundColor: '#007bff' }}
+                  style={{ height: `${(m.count / maxMonthlyCount) * 100}%`, minHeight: 2, backgroundColor: '#3b82f6' }}
                 />
                 <span className="text-[10px] text-text-muted mt-1">{formatMonth(m.month)}</span>
               </div>

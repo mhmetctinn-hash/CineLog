@@ -1,19 +1,76 @@
 @import "tailwindcss";
 
 @theme {
-  --color-base: #121824;
-  --color-surface: #1a2333;
-  --color-primary: #d61c2c;
-  --color-primary-hover: #b8121f;
-  --color-highlight: #fcd116;
-  --color-accent: #007bff;
-  --color-text: #e5e7eb;
-  --color-text-muted: #9ca3af;
-  --color-border: #2e3648;
+  --color-base: #08090d;
+  --color-surface: #14151c;
+  --color-surface-2: #1c1e28;
+  --color-primary: #e4283f;
+  --color-primary-hover: #c31d33;
+  --color-highlight: #f5c518;
+  --color-accent: #3b82f6;
+  --color-text: #f2f3f7;
+  --color-text-muted: #8b91a5;
+  --color-border: #212330;
 }
 
 html {
   color-scheme: dark;
+}
+
+/* custom range slider — the native control is unstyled/tiny by default */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  border: 2px solid var(--color-base);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  border: 2px solid var(--color-base);
+  cursor: pointer;
+}
+
+/* custom select arrow — replaces the default browser chevron so it matches
+   the rest of the (borderless, appearance-none) form controls */
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238b91a5'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 16px;
+  padding-right: 2rem;
 }
 
 .logo-mark {

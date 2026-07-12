@@ -263,13 +263,13 @@ export function MovieMap() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-2">Film ve Dizi Haritası</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-2">Film ve Dizi Haritası</h1>
       <p className="text-sm text-text-muted mb-4">
         Kategoriler kendi loglarınızdaki türlerin sıklığına göre otomatik oluşturulur. Çizgiler aynı seriye ait devam filmlerini gösterir.
       </p>
 
-      <div className="flex flex-wrap gap-4 mb-4 items-start">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap gap-4 mb-4 items-start bg-surface border border-border rounded-lg p-4">
+        <div className="flex flex-col gap-1.5 w-40">
           <label className="text-xs text-text-muted">Minimum puanım: {minRating || 'Hepsi'}</label>
           <input
             type="range"
@@ -278,11 +278,11 @@ export function MovieMap() {
             step={1}
             value={minRating}
             onChange={(e) => setMinRating(Number(e.target.value))}
-            className="w-32"
+            className="mt-2"
           />
         </div>
 
-        <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
+        <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
           <label className="text-xs text-text-muted">Türe göre filtrele</label>
           <div className="flex flex-wrap gap-1.5">
             {availableGenres.map((g) => (

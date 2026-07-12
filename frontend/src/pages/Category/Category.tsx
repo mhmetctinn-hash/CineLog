@@ -26,7 +26,7 @@ export function Category() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-1">{genreName}</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-1">{genreName}</h1>
       <p className="text-xs text-text-muted mb-4">
         {isTv ? 'Logladığın veya izleme listendeki diziler' : 'Logladığın veya izleme listendeki filmler'}
       </p>
@@ -38,7 +38,7 @@ export function Category() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
         {items.map((item) => (
           <MovieCard
             key={item.tmdbId}

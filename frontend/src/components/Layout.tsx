@@ -23,7 +23,7 @@ export function Layout() {
   return (
     <div className="min-h-screen bg-base text-text flex flex-col">
       <header className="border-b border-border bg-surface/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
           <Logo />
           {user && (
             <>
@@ -88,7 +88,7 @@ export function Layout() {
           </nav>
         )}
       </header>
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
         <Outlet />
       </main>
     </div>

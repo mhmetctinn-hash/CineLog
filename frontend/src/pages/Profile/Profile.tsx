@@ -133,7 +133,7 @@ export function Profile() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-highlight mb-4">Loglarım</h1>
+      <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">Loglarım</h1>
 
       <div className="flex gap-2 mb-4">
         {(['movie', 'tv'] as Mode[]).map((m) => (
@@ -149,24 +149,24 @@ export function Profile() {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-3 mb-6 items-end">
-        <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 bg-surface border border-border rounded-lg p-4">
+        <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
           <label className="text-xs text-text-muted">Başlıkta ara</label>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Başlıkta ara..."
-            className="px-2 py-1 rounded border border-border bg-surface text-sm"
+            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-xs text-text-muted">Durum</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="px-2 py-1 rounded border border-border bg-surface text-sm"
+            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
           >
             <option value="all">Hepsi</option>
             <option value="watched">{STATUS_LABEL.watched}</option>
@@ -174,7 +174,7 @@ export function Profile() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5 justify-center">
           <label className="text-xs text-text-muted">Minimum puanım: {minRating || 'Hepsi'}</label>
           <input
             type="range"
@@ -183,16 +183,16 @@ export function Profile() {
             step={1}
             value={minRating}
             onChange={(e) => setMinRating(Number(e.target.value))}
-            className="w-32"
+            className="mt-2"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-xs text-text-muted">Sırala</label>
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="px-2 py-1 rounded border border-border bg-surface text-sm"
+            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
           >
             <option value="date_desc">Tarih (yeni → eski)</option>
             <option value="date_asc">Tarih (eski → yeni)</option>
@@ -215,7 +215,7 @@ export function Profile() {
       )}
 
       {filteredLogs.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           {filteredLogs.map((log) => (
             <MovieCard
               key={log.id}

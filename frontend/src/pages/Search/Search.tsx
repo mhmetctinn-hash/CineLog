@@ -39,7 +39,7 @@ function Recommendations() {
   return (
     <div>
       <h2 className="text-sm font-semibold text-text-muted mb-3">Senin İçin Önerilenler</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-5">
         {data.map((rec) => (
           <button key={rec.tmdbId} onClick={() => navigate(`/movie/${rec.tmdbId}`)} className="text-left group">
             <div className="aspect-[2/3] rounded-lg overflow-hidden bg-surface border border-border">
@@ -105,7 +105,7 @@ export function Search() {
         placeholder={mode === 'movie' ? 'Film ara...' : 'Dizi ara...'}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full bg-surface border border-border rounded-md px-4 py-3 outline-none focus:border-accent mb-6"
+        className="w-full bg-surface border border-border rounded-md px-4 py-3.5 text-base outline-none focus:border-accent mb-6"
         autoFocus
       />
 
@@ -118,7 +118,7 @@ export function Search() {
           {movieData && movieData.results.length === 0 && (
             <p className="text-text-muted text-center mt-12">Sonuç bulunamadı.</p>
           )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             {movieData?.results.map((movie) => (
               <MovieCard
                 key={movie.id}
@@ -135,7 +135,7 @@ export function Search() {
           {tvData && tvData.results.length === 0 && (
             <p className="text-text-muted text-center mt-12">Sonuç bulunamadı.</p>
           )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             {tvData?.results.map((show) => (
               <MovieCard
                 key={show.id}

@@ -130,7 +130,7 @@ export function TvDetail() {
       </div>
 
       <div className="flex-1">
-        <h1 className="text-2xl font-semibold text-highlight">{show.name}</h1>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-highlight">{show.name}</h1>
         <p className="text-text-muted text-sm mt-1">
           {show.first_air_date?.slice(0, 4)}
           {show.number_of_seasons ? ` · ${show.number_of_seasons} sezon` : ''}

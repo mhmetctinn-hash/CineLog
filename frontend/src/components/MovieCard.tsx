@@ -25,8 +25,8 @@ export function MovieCard({ tmdbId, title, posterPath, subtitle, actions, linkTo
           </div>
         )}
       </Link>
-      <div className="p-3 flex flex-col gap-2 flex-1">
-        <Link to={to} className="font-medium text-sm line-clamp-2 hover:text-highlight">
+      <div className="p-3.5 flex flex-col gap-2 flex-1">
+        <Link to={to} className="font-medium text-sm sm:text-base line-clamp-2 hover:text-highlight transition-colors">
           {title}
         </Link>
         {subtitle && <p className="text-xs text-text-muted">{subtitle}</p>}

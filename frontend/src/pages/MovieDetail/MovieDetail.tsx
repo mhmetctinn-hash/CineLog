@@ -128,7 +128,7 @@ export function MovieDetail() {
       </div>
 
       <div className="flex-1">
-        <h1 className="text-2xl font-semibold text-highlight">{movie.title}</h1>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-highlight">{movie.title}</h1>
         <p className="text-text-muted text-sm mt-1">
           {movie.release_date?.slice(0, 4)}
           {movie.runtime ? ` · ${movie.runtime} dk` : ''}
