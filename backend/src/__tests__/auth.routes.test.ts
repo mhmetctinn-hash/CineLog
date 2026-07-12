@@ -57,7 +57,10 @@ describe("auth routes", () => {
   it("GET /api/auth/me returns the user after a successful login", async () => {
     const bcrypt = await import("bcrypt");
     const hash = await bcrypt.hash("password123", 4);
-    mockedQuery.mockResolvedValueOnce({ rows: [{ id: "user-1", email: "me@example.com", password_hash: hash }] });
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ id: "user-1", email: "me@example.com", password_hash: hash }] })
+      .mockResolvedValueOnce({ rows: [{ email: "me@example.com", avatar_url: null }] })
+      .mockResolvedValueOnce({ rows: [{ email: "me@example.com", avatar_url: null }] });
 
     const agent = request.agent(app);
     const loginRes = await agent.post("/api/auth/login").send({ email: "me@example.com", password: "password123" });
