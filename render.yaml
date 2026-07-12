@@ -36,7 +36,7 @@ services:
       # server-side, so no CORS / cross-site cookie configuration is needed.
       - type: rewrite
         source: /api/*
-        destination: https://cinelog-backend.onrender.com/api/*
+        destination: https://cinelog-backend-ouzz.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html

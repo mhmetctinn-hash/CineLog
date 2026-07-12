@@ -234,6 +234,12 @@
 - Yerelde `NODE_ENV=production npm install --include=dev` ile 490 paketin kurulduğu ve `tsc --version`'ın doğru `5.6.3`'ü verdiği doğrulandı; temiz build + testler (25/25) tekrar geçti.
 - Commit: "Force devDependencies install in Render build despite NODE_ENV=production" (`fix/render-devdeps-install` → `develop` → `main`)
 
+### 25. Backend Canlıya Alındı — Proxy URL'i Gerçek Adrese Güncellendi
+- `cinelog-backend` ve `cinelog-frontend` her ikisi de "Deployed" durumuna geçti. Backend'in gerçek Render adresi `cinelog-backend-ouzz.onrender.com` çıktı (tahmin edilen `cinelog-backend.onrender.com` değil — isim çakışması yüzünden Render rastgele bir ek eklemiş).
+- `https://cinelog-backend-ouzz.onrender.com/api/health` doğrudan tarayıcıda test edildi, `{"status":"ok"}` döndü — backend gerçekten canlı ve çalışıyor.
+- `render.yaml`'daki frontend `routes` rewrite hedefi gerçek adrese güncellendi, aksi halde frontend'in `/api/*` istekleri var olmayan bir adrese gidecekti.
+- Commit: "Point the frontend's API proxy at the real backend URL" (`fix/render-backend-proxy-url` → `develop` → `main`)
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)
