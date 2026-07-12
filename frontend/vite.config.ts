@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'CineLog',
         short_name: 'CineLog',
         description: 'Kişisel film günlüğü ve analiz platformu',
-        theme_color: '#121824',
-        background_color: '#121824',
+        theme_color: '#08090d',
+        background_color: '#08090d',
         display: 'standalone',
         icons: [
           {

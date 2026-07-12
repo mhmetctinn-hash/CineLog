@@ -59,7 +59,7 @@ export function Stats() {
             {topGenres.map((g) => (
               <div key={g.genreId} className="flex items-center gap-2" title={`${resolveGenreName(g.genreId)}: ${g.count}`}>
                 <span className="text-xs text-text-muted w-20 shrink-0 truncate">{resolveGenreName(g.genreId)}</span>
-                <div className="flex-1 h-3 bg-base rounded-full overflow-hidden">
+                <div className="flex-1 h-3 bg-canvas rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${(g.count / maxGenreCount) * 100}%`, backgroundColor: '#fcd116' }}
@@ -96,7 +96,7 @@ export function Stats() {
               onClick={() => navigate(m.mediaType === 'tv' ? `/tv/${m.tmdbId}` : `/movie/${m.tmdbId}`)}
               className="text-left group"
             >
-              <div className="aspect-[2/3] rounded-lg overflow-hidden bg-base border border-border">
+              <div className="aspect-[2/3] rounded-lg overflow-hidden bg-canvas border border-border">
                 {posterUrl(m.posterPath, 'w200') ? (
                   <img src={posterUrl(m.posterPath, 'w200')!} alt={m.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                 ) : (

@@ -157,7 +157,7 @@ export function Profile() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Başlıkta ara..."
-            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
+            className="px-3 py-2 rounded-md border border-border bg-canvas text-sm outline-none focus:border-accent transition-colors"
           />
         </div>
 
@@ -166,7 +166,7 @@ export function Profile() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
+            className="px-3 py-2 rounded-md border border-border bg-canvas text-sm outline-none focus:border-accent transition-colors"
           >
             <option value="all">Hepsi</option>
             <option value="watched">{STATUS_LABEL.watched}</option>
@@ -192,7 +192,7 @@ export function Profile() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="px-3 py-2 rounded-md border border-border bg-base text-sm outline-none focus:border-accent transition-colors"
+            className="px-3 py-2 rounded-md border border-border bg-canvas text-sm outline-none focus:border-accent transition-colors"
           >
             <option value="date_desc">Tarih (yeni → eski)</option>
             <option value="date_asc">Tarih (eski → yeni)</option>

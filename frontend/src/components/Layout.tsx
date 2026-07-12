@@ -12,7 +12,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
   `block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-    isActive ? 'bg-primary text-white' : 'text-text-muted hover:text-text hover:bg-base'
+    isActive ? 'bg-primary text-white' : 'text-text-muted hover:text-text hover:bg-canvas'
   }`;
 
 export function Layout() {
@@ -21,7 +21,7 @@ export function Layout() {
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <div className="min-h-screen bg-base text-text flex flex-col">
+    <div className="min-h-screen bg-canvas text-text flex flex-col">
       <header className="border-b border-border bg-surface/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
           <Logo />

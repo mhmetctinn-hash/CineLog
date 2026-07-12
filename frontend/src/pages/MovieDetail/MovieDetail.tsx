@@ -254,7 +254,7 @@ export function MovieDetail() {
                     type="button"
                     onClick={() => setStatus(s)}
                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      status === s ? 'bg-primary text-white' : 'bg-base border border-border text-text-muted'
+                      status === s ? 'bg-primary text-white' : 'bg-canvas border border-border text-text-muted'
                     }`}
                   >
                     {STATUS_LABEL[s]}
@@ -272,7 +272,7 @@ export function MovieDetail() {
                 type="date"
                 value={watchedDate}
                 onChange={(e) => setWatchedDate(e.target.value)}
-                className="bg-base border border-border rounded-md px-3 py-2 outline-none focus:border-accent"
+                className="bg-canvas border border-border rounded-md px-3 py-2 outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -285,7 +285,7 @@ export function MovieDetail() {
                 rows={4}
                 maxLength={5000}
                 placeholder="Film hakkında düşünceleriniz..."
-                className="w-full bg-base border border-border rounded-md px-3 py-2 outline-none focus:border-accent resize-none"
+                className="w-full bg-canvas border border-border rounded-md px-3 py-2 outline-none focus:border-accent resize-none"
               />
             </div>
             <label className="flex items-center gap-2 text-sm text-text-muted">

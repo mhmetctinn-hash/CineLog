@@ -114,7 +114,7 @@ export function ProfileMenu() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="w-full text-left px-3 py-2 text-sm text-text hover:bg-base transition-colors disabled:opacity-50"
+            className="w-full text-left px-3 py-2 text-sm text-text hover:bg-canvas transition-colors disabled:opacity-50"
           >
             {uploading ? 'Yükleniyor...' : 'Fotoğraf Değiştir'}
           </button>
@@ -129,7 +129,7 @@ export function ProfileMenu() {
           {user.avatarUrl && (
             <button
               onClick={handleRemoveAvatar}
-              className="w-full text-left px-3 py-2 text-sm text-text hover:bg-base transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-text hover:bg-canvas transition-colors"
             >
               Fotoğrafı Kaldır
             </button>
@@ -140,7 +140,7 @@ export function ProfileMenu() {
           <div className="border-t border-border mt-1 pt-1">
             <button
               onClick={handleLogout}
-              className="w-full text-left px-3 py-2 text-sm text-text-muted hover:text-primary hover:bg-base transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-text-muted hover:text-primary hover:bg-canvas transition-colors"
             >
               Çıkış Yap
             </button>

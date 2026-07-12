@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-base: #08090d;
+  --color-canvas: #08090d;
   --color-surface: #14151c;
   --color-surface-2: #1c1e28;
   --color-primary: #e4283f;
@@ -36,7 +36,7 @@ input[type='range']::-webkit-slider-thumb {
   height: 18px;
   border-radius: 999px;
   background: var(--color-primary);
-  border: 2px solid var(--color-base);
+  border: 2px solid var(--color-canvas);
   box-shadow: 0 0 0 1px var(--color-primary);
   cursor: pointer;
   transition: transform 0.15s ease;
@@ -57,7 +57,7 @@ input[type='range']::-moz-range-thumb {
   height: 18px;
   border-radius: 999px;
   background: var(--color-primary);
-  border: 2px solid var(--color-base);
+  border: 2px solid var(--color-canvas);
   cursor: pointer;
 }
 
@@ -171,7 +171,7 @@ select {
 
 body {
   margin: 0;
-  background: var(--color-base);
+  background: var(--color-canvas);
   color: var(--color-text);
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;

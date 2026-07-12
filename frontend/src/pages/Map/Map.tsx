@@ -291,7 +291,7 @@ export function MovieMap() {
                 onClick={() => toggleGenre(g)}
                 className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
                   selectedGenres.has(g)
-                    ? 'bg-highlight text-base border-highlight'
+                    ? 'bg-highlight text-canvas border-highlight'
                     : 'border-border text-text-muted hover:text-text'
                 }`}
               >

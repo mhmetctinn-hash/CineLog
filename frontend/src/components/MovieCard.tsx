@@ -16,7 +16,7 @@ export function MovieCard({ tmdbId, title, posterPath, subtitle, actions, linkTo
 
   return (
     <div className="bg-surface-2 rounded-lg overflow-hidden border border-border flex flex-col">
-      <Link to={to} className="block aspect-[2/3] bg-base">
+      <Link to={to} className="block aspect-[2/3] bg-canvas">
         {src ? (
           <img src={src} alt={title} loading="lazy" className="w-full h-full object-cover" />
         ) : (

@@ -63,7 +63,7 @@ export function CategoryMenu({ onNavigate }: { onNavigate?: () => void } = {}) {
                   <button
                     key={`movie-${id}`}
                     onClick={() => go('movie', id)}
-                    className="text-left px-3 py-1.5 text-sm text-text hover:bg-base hover:text-highlight transition-colors rounded"
+                    className="text-left px-3 py-1.5 text-sm text-text hover:bg-canvas hover:text-highlight transition-colors rounded"
                   >
                     {GENRE_NAMES[id]}
                   </button>
@@ -80,7 +80,7 @@ export function CategoryMenu({ onNavigate }: { onNavigate?: () => void } = {}) {
                   <button
                     key={`tv-${id}`}
                     onClick={() => go('tv', id)}
-                    className="text-left px-3 py-1.5 text-sm text-text hover:bg-base hover:text-highlight transition-colors rounded"
+                    className="text-left px-3 py-1.5 text-sm text-text hover:bg-canvas hover:text-highlight transition-colors rounded"
                   >
                     {TV_GENRE_NAMES[id]}
                   </button>
