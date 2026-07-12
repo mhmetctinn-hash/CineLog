@@ -8,6 +8,8 @@ export interface CreateTvLogInput {
   watchedDate?: string;
   status?: LogStatus;
   hasSpoilers?: boolean;
+  lastWatchedSeason?: number;
+  lastWatchedEpisode?: number;
 }
 
 export type UpdateTvLogInput = Omit<CreateTvLogInput, 'tmdbId'>;

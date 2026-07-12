@@ -49,9 +49,16 @@ export function TvDetail() {
   );
   const [status, setStatus] = useState<LogStatus>(existingLog?.status ?? 'watched');
   const [hasSpoilers, setHasSpoilers] = useState(existingLog?.has_spoilers ?? false);
+  const [lastSeason, setLastSeason] = useState<number | null>(existingLog?.last_watched_season ?? null);
+  const [lastEpisode, setLastEpisode] = useState<number | null>(existingLog?.last_watched_episode ?? null);
   const [formError, setFormError] = useState<string | null>(null);
   const [showLogForm, setShowLogForm] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
+
+  function openLogForm(initialStatus: LogStatus) {
+    setStatus(initialStatus);
+    setShowLogForm(true);
+  }
 
   const invalidateLogRelated = () => {
     queryClient.invalidateQueries({ queryKey: ['tv-logs'] });
@@ -66,6 +73,8 @@ export function TvDetail() {
             watchedDate,
             status,
             hasSpoilers,
+            lastWatchedSeason: status === 'dropped' ? lastSeason ?? undefined : undefined,
+            lastWatchedEpisode: status === 'dropped' ? lastEpisode ?? undefined : undefined,
           })
         : tvApi.logs.create({
             tmdbId,
@@ -74,6 +83,8 @@ export function TvDetail() {
             watchedDate,
             status,
             hasSpoilers,
+            lastWatchedSeason: status === 'dropped' ? lastSeason ?? undefined : undefined,
+            lastWatchedEpisode: status === 'dropped' ? lastEpisode ?? undefined : undefined,
           }),
     onSuccess: () => {
       invalidateLogRelated();
@@ -158,14 +169,29 @@ export function TvDetail() {
           >
             {watchlistEntry ? 'İzleyeceklerimden Çıkar' : 'İzleyeceğim'}
           </button>
-          <button
-            onClick={() => setShowLogForm((v) => !v)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              existingLog ? 'bg-primary text-white' : 'bg-surface border border-border hover:border-primary'
-            }`}
-          >
-            {existingLog ? 'İzleme Kaydını Düzenle' : 'İzledim / Yarım Bıraktım'}
-          </button>
+          {existingLog ? (
+            <button
+              onClick={() => setShowLogForm((v) => !v)}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-white transition-colors"
+            >
+              İzleme Kaydını Düzenle
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => openLogForm('watched')}
+                className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-white hover:bg-primary-hover transition-colors"
+              >
+                İzledim
+              </button>
+              <button
+                onClick={() => openLogForm('dropped')}
+                className="px-3 py-2 rounded-md text-xs font-medium text-text-muted border border-border hover:text-text hover:border-text-muted transition-colors"
+              >
+                Yarım mı bıraktın?
+              </button>
+            </>
+          )}
           {existingLog && (
             <button
               onClick={() => deleteLog.mutate()}
@@ -195,6 +221,11 @@ export function TvDetail() {
               >
                 {STATUS_LABEL[existingLog.status]}
               </span>
+              {existingLog.status === 'dropped' && existingLog.last_watched_season != null && (
+                <span className="text-xs text-text-muted">
+                  {existingLog.last_watched_season}. sezon, {existingLog.last_watched_episode}. bölümde kaldı
+                </span>
+              )}
             </div>
             <StarRating value={existingLog.rating} readOnly />
             {existingLog.review &&
@@ -238,6 +269,46 @@ export function TvDetail() {
                 ))}
               </div>
             </div>
+            {status === 'dropped' && (
+              <div>
+                <label className="text-sm text-text-muted block mb-1">Hangi bölümde kaldın?</label>
+                <div className="flex gap-2">
+                  <select
+                    value={lastSeason ?? ''}
+                    onChange={(e) => {
+                      setLastSeason(e.target.value ? Number(e.target.value) : null);
+                      setLastEpisode(null);
+                    }}
+                    className="bg-base border border-border rounded-md px-3 py-2 outline-none focus:border-accent"
+                  >
+                    <option value="">Sezon</option>
+                    {(show.seasons ?? [])
+                      .filter((s) => s.season_number > 0)
+                      .map((s) => (
+                        <option key={s.season_number} value={s.season_number}>
+                          {s.season_number}. Sezon
+                        </option>
+                      ))}
+                  </select>
+                  <select
+                    value={lastEpisode ?? ''}
+                    onChange={(e) => setLastEpisode(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!lastSeason}
+                    className="bg-base border border-border rounded-md px-3 py-2 outline-none focus:border-accent disabled:opacity-50"
+                  >
+                    <option value="">Bölüm</option>
+                    {Array.from(
+                      { length: show.seasons?.find((s) => s.season_number === lastSeason)?.episode_count ?? 0 },
+                      (_, i) => i + 1,
+                    ).map((ep) => (
+                      <option key={ep} value={ep}>
+                        {ep}. Bölüm
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
             <div>
               <label className="text-sm text-text-muted block mb-1">Puan</label>
               <StarRating value={rating} onChange={setRating} />

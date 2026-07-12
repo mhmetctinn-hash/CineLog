@@ -107,10 +107,17 @@ export interface TmdbTvSearchResult {
   total_results: number;
 }
 
+export interface TmdbTvSeason {
+  season_number: number;
+  name: string;
+  episode_count: number;
+}
+
 export interface TmdbTvDetail extends TmdbTvSummary {
   number_of_seasons: number | null;
   genres: { id: number; name: string }[];
   videos?: { results: TmdbVideo[] };
+  seasons?: TmdbTvSeason[];
 }
 
 export interface TvLog {
@@ -123,6 +130,8 @@ export interface TvLog {
   watched_date: string;
   status: LogStatus;
   has_spoilers: boolean;
+  last_watched_season: number | null;
+  last_watched_episode: number | null;
   created_at: string;
   name: string;
   poster_path: string | null;

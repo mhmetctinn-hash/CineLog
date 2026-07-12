@@ -1,0 +1,2 @@
+ALTER TABLE tv_logs ADD COLUMN IF NOT EXISTS last_watched_season SMALLINT;
+ALTER TABLE tv_logs ADD COLUMN IF NOT EXISTS last_watched_episode SMALLINT;

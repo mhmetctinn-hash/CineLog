@@ -20,6 +20,8 @@ export interface TvLog {
   watched_date: string;
   status: LogStatus;
   has_spoilers: boolean;
+  last_watched_season: number | null;
+  last_watched_episode: number | null;
   created_at: Date;
 }
 

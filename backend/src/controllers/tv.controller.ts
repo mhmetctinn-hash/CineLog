@@ -56,6 +56,8 @@ const createLogSchema = z.object({
   watchedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   status: logStatusSchema.optional(),
   hasSpoilers: z.boolean().optional(),
+  lastWatchedSeason: z.number().int().min(0).optional(),
+  lastWatchedEpisode: z.number().int().min(1).optional(),
 });
 
 const listLogsSchema = z.object({
@@ -74,6 +76,8 @@ const updateLogSchema = z.object({
   watchedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   status: logStatusSchema.optional(),
   hasSpoilers: z.boolean().optional(),
+  lastWatchedSeason: z.number().int().min(0).optional(),
+  lastWatchedEpisode: z.number().int().min(1).optional(),
 });
 
 export async function createLog(req: Request, res: Response) {

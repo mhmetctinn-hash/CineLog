@@ -11,14 +11,16 @@ interface CreateTvLogInput {
   watchedDate?: string;
   status?: LogStatus;
   hasSpoilers?: boolean;
+  lastWatchedSeason?: number;
+  lastWatchedEpisode?: number;
 }
 
 export async function createTvLog(input: CreateTvLogInput): Promise<TvLog> {
   const show = await getOrCreateTvShowByTmdbId(input.tmdbId);
 
   const result = await pool.query<TvLog>(
-    `INSERT INTO tv_logs (user_id, tv_show_id, rating, review, watched_date, status, has_spoilers)
-     VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_DATE), COALESCE($6, 'watched'), COALESCE($7, false))
+    `INSERT INTO tv_logs (user_id, tv_show_id, rating, review, watched_date, status, has_spoilers, last_watched_season, last_watched_episode)
+     VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_DATE), COALESCE($6, 'watched'), COALESCE($7, false), $8, $9)
      RETURNING *`,
     [
       input.userId,
@@ -28,6 +30,8 @@ export async function createTvLog(input: CreateTvLogInput): Promise<TvLog> {
       input.watchedDate ?? null,
       input.status ?? null,
       input.hasSpoilers ?? null,
+      input.lastWatchedSeason ?? null,
+      input.lastWatchedEpisode ?? null,
     ],
   );
 
@@ -108,6 +112,8 @@ interface UpdateTvLogInput {
   watchedDate?: string;
   status?: LogStatus;
   hasSpoilers?: boolean;
+  lastWatchedSeason?: number;
+  lastWatchedEpisode?: number;
 }
 
 export async function updateTvLog(userId: string, logId: string, input: UpdateTvLogInput): Promise<TvLog | undefined> {
@@ -117,7 +123,9 @@ export async function updateTvLog(userId: string, logId: string, input: UpdateTv
          review = COALESCE($4, review),
          watched_date = COALESCE($5, watched_date),
          status = COALESCE($6, status),
-         has_spoilers = COALESCE($7, has_spoilers)
+         has_spoilers = COALESCE($7, has_spoilers),
+         last_watched_season = COALESCE($8, last_watched_season),
+         last_watched_episode = COALESCE($9, last_watched_episode)
      WHERE id = $1 AND user_id = $2
      RETURNING *`,
     [
@@ -128,6 +136,8 @@ export async function updateTvLog(userId: string, logId: string, input: UpdateTv
       input.watchedDate ?? null,
       input.status ?? null,
       input.hasSpoilers ?? null,
+      input.lastWatchedSeason ?? null,
+      input.lastWatchedEpisode ?? null,
     ],
   );
   return result.rows[0];

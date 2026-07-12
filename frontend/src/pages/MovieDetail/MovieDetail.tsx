@@ -55,6 +55,11 @@ export function MovieDetail() {
   const [showLogForm, setShowLogForm] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
 
+  function openLogForm(initialStatus: LogStatus) {
+    setStatus(initialStatus);
+    setShowLogForm(true);
+  }
+
   const invalidateLogRelated = () => {
     queryClient.invalidateQueries({ queryKey: ['logs'] });
     queryClient.invalidateQueries({ queryKey: ['logs-page'] });
@@ -162,14 +167,29 @@ export function MovieDetail() {
           >
             {watchlistEntry ? 'İzleyeceklerimden Çıkar' : 'İzleyeceğim'}
           </button>
-          <button
-            onClick={() => setShowLogForm((v) => !v)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              existingLog ? 'bg-primary text-white' : 'bg-surface border border-border hover:border-primary'
-            }`}
-          >
-            {existingLog ? 'İzleme Kaydını Düzenle' : 'İzledim / Yarım Bıraktım'}
-          </button>
+          {existingLog ? (
+            <button
+              onClick={() => setShowLogForm((v) => !v)}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-white transition-colors"
+            >
+              İzleme Kaydını Düzenle
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => openLogForm('watched')}
+                className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-white hover:bg-primary-hover transition-colors"
+              >
+                İzledim
+              </button>
+              <button
+                onClick={() => openLogForm('dropped')}
+                className="px-3 py-2 rounded-md text-xs font-medium text-text-muted border border-border hover:text-text hover:border-text-muted transition-colors"
+              >
+                Yarım mı bıraktın?
+              </button>
+            </>
+          )}
           {existingLog && (
             <button
               onClick={() => deleteLog.mutate()}
