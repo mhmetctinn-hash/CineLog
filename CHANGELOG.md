@@ -189,6 +189,14 @@
 - Tarayıcıda doğrulandı: `.logo-sheen`'in `transform` değeri 1 saniye arayla ölçülüp gerçekten hareket ettiği teyit edildi (39px → 124px); hover'daki klaket kapanma ve koşan silüet animasyonları bozulmadı.
 - Commit: "Sweep a single light band across the whole logo instead of per-word effects" (`feature/logo-unified-sheen` → `develop` → `main`)
 
+### 20. Logo Işığı: Şekillerin İçinden Geçen Parıltı (Blok Değil)
+- Kullanıcı geri bildirimi: bir önceki tek-parça sheen dikdörtgen bir "kalıp/blok" gibi görünüyordu; istenen, eski "Log" shimmer'ındaki gibi ışığın **harflerin/şekillerin içinden** geçtiği zarif efektin tüm logoya (ikon + yazı) uygulanmış hali.
+- **Yazı:** "Cine" ve "Log" tek bir `.logo-wordmark` span'ine ("CineLog") birleştirildi. İki katmanlı `background`: alt katman sabit iki-tonlu bordo→mavi baz gradyan, üst katman `background-position` ile kayan beyaz bir highlight bandı; `background-clip: text` sayesinde ışık yalnızca glif şekillerinin içinde görünüyor (dikdörtgen yok).
+- **İkon:** SVG içine `iconSheen` beyaz gradyan bandı eklendi ve `clipPath="url(#inkClip)"` (klaket gövdesi + döndürülmüş kol şekilleri) ile kırpıldı; `icon-shimmer` keyframe'i (`translateX`) ile band klaketin ink'i boyunca geziyor — dolayısıyla ışık yalnızca klaket şeklinde beliriyor, arka plandaki boş dikdörtgende değil.
+- Her iki shimmer da aynı süre (4.5s) ve `ease-in-out` + sonda bekleme ile periyodik bir gleam veriyor; eski `.logo-shine-viewport`/`.logo-sheen` blok-overlay yaklaşımı ve `.cine-text`/`.log-text` kaldırıldı.
+- Tarayıcıda doğrulandı: yazı highlight'ı (`background-position` -57% → 3%) ve ikon bandı (`translateX` 30px → 13px) periyodik hareket ediyor, baz gradyan sabit; konsol hatası yok; iki-tonlu bordo/mavi görünüm ve klaket üzerinde gezen ışık teyit edildi.
+- Commit: "Confine the logo shimmer to the ink instead of a sweeping block" (`feature/logo-shimmer-through-ink` → `develop` → `main`)
+
 ---
 
 ## Şu Anki Durum (Nerede Kaldık)

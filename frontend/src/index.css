@@ -24,10 +24,16 @@ html {
   --ts-blue-bright: #6fa8ff;
 }
 
-@keyframes logo-sheen-sweep {
-  0% { transform: translateX(-160%) skewX(-15deg); }
-  35% { transform: translateX(280%) skewX(-15deg); }
-  100% { transform: translateX(280%) skewX(-15deg); }
+/* the highlight travels through the letterforms, then rests off-screen (periodic gleam) */
+@keyframes wordmark-shimmer {
+  0% { background-position: 130% center, 0 0; }
+  55%, 100% { background-position: -70% center, 0 0; }
+}
+
+/* a matching band travels through the icon's ink, clipped to the clapperboard shape */
+@keyframes icon-shimmer {
+  0% { transform: translateX(-22px); }
+  55%, 100% { transform: translateX(34px); }
 }
 
 @keyframes clap-swing {
@@ -50,34 +56,24 @@ html {
   100% { transform: translateX(420%); opacity: 0; }
 }
 
-.cine-text {
-  color: var(--ts-bordo);
-  text-shadow: 0 0 8px rgba(122, 31, 61, 0.55);
-}
-
-.log-text {
-  color: var(--ts-blue);
-  text-shadow: 0 0 8px rgba(28, 79, 156, 0.55);
-}
-
-/* one continuous light sweeping across the whole logo (icon + wordmark) */
-.logo-shine-viewport {
+/* single two-tone wordmark; the shimmer travels through the actual glyphs */
+.logo-wordmark {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
+  background-image:
+    linear-gradient(100deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%),
+    linear-gradient(92deg, var(--ts-bordo) 0%, var(--ts-bordo) 52%, var(--ts-blue) 60%, var(--ts-blue) 100%);
+  background-size: 220% 100%, 100% 100%;
+  background-position: 130% center, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: wordmark-shimmer 4.5s ease-in-out infinite;
 }
 
-.logo-sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 42%;
-  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.9) 50%, transparent 100%);
-  mix-blend-mode: overlay;
-  transform: translateX(-160%) skewX(-15deg);
-  animation: logo-sheen-sweep 4.5s ease-in-out infinite;
-  pointer-events: none;
+/* white band that sweeps through the icon; the SVG clip keeps it on the ink only */
+.icon-shimmer {
+  animation: icon-shimmer 4.5s ease-in-out infinite;
 }
 
 .clapper-arm {
@@ -107,7 +103,8 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .logo-sheen,
+  .logo-wordmark,
+  .icon-shimmer,
   .logo-mark:hover .clapper-arm,
   .logo-mark:hover .clapper-flash,
   .logo-mark:hover .logo-runner {
