@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 export function Logo() {
   return (
     <Link to="/" className="logo-mark group flex items-center gap-2 select-none">
-      <span className="relative inline-block w-8 h-8 shrink-0 rounded-[9px] bg-[#151827] flex items-center justify-center">
-        <svg viewBox="0 0 56 56" className="w-[70%] h-[70%] overflow-visible">
+      <span className="relative inline-block w-11 h-11 shrink-0 rounded-[11px] bg-[#151827] flex items-center justify-center">
+        <svg viewBox="0 0 56 56" className="w-[78%] h-[78%] overflow-visible">
           <defs>
             <linearGradient id="markGrad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#e0a23c" />

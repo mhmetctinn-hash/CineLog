@@ -74,11 +74,11 @@ select {
 }
 
 .logo-mark {
-  /* Trabzonspor-inspired claret (bordo) + blue, scoped to the logo only */
-  --ts-bordo: #7a1f3d;
-  --ts-bordo-bright: #b23a5d;
-  --ts-blue: #1c4f9c;
-  --ts-blue-bright: #6fa8ff;
+  /* cinematic amber + deep purple, scoped to the logo only */
+  --ts-bordo: #4a1942;
+  --ts-bordo-bright: #6b2456;
+  --ts-blue: #e0a23c;
+  --ts-blue-bright: #f0c674;
 }
 
 /* the highlight travels through the letterforms, then rests off-screen (periodic gleam) */
