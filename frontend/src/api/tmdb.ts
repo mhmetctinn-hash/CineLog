@@ -6,4 +6,7 @@ export const tmdbApi = {
     api.get<TmdbSearchResult>(`/tmdb/search?query=${encodeURIComponent(query)}&page=${page}`),
   movie: (id: number | string) => api.get<TmdbMovieDetail>(`/tmdb/movie/${id}`),
   recommendations: () => api.get<Recommendation[]>('/tmdb/recommendations'),
+  dice: () => api.get<Recommendation>('/tmdb/dice'),
+  mood: (mood: string, pace?: string) =>
+    api.get<Recommendation[]>(`/tmdb/mood?mood=${mood}${pace ? `&pace=${pace}` : ''}`),
 };

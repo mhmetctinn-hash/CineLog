@@ -52,13 +52,18 @@ export function getMovieRecommendations(id: string) {
 // Used only as a recommendation fallback (favorite-genre discovery), never for
 // open-ended catalog browsing — CineLog is a personal tracker, not a
 // storefront, so category pages only ever show the user's own collection.
-export function discoverMoviesByGenre(genreId: number) {
+// Accepts a comma-joined genre id list too (TMDB ANDs comma-separated genres).
+export function discoverMoviesByGenre(genreIds: number | string) {
   return tmdbFetch<{ results: TmdbListItem[] }>("/discover/movie", {
-    with_genres: String(genreId),
+    with_genres: String(genreIds),
     sort_by: "vote_average.desc",
     "vote_count.gte": "200",
     language: TR,
   });
+}
+
+export function getPopularMovies() {
+  return tmdbFetch<{ results: TmdbListItem[] }>("/movie/popular", { language: TR });
 }
 
 export interface TmdbListItem {

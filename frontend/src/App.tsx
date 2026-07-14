@@ -11,6 +11,7 @@ import { MovieMap } from './pages/Map/Map';
 import { Stats } from './pages/Stats/Stats';
 import { Category } from './pages/Category/Category';
 import { TvDetail } from './pages/TvDetail/TvDetail';
+import { Discover } from './pages/Discover/Discover';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Search />} />
+          <Route path="/discover" element={<Discover />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/tv/:id" element={<TvDetail />} />
           <Route path="/profile" element={<Profile />} />

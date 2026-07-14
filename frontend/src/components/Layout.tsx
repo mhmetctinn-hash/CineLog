@@ -31,6 +31,9 @@ export function Layout() {
                 <NavLink to="/" end className={navLinkClass}>
                   Ara
                 </NavLink>
+                <NavLink to="/discover" className={navLinkClass}>
+                  Ne İzlesem?
+                </NavLink>
                 <CategoryMenu />
                 <NavLink to="/profile" className={navLinkClass}>
                   İzlediklerim
@@ -71,6 +74,9 @@ export function Layout() {
           <nav className="md:hidden border-t border-border px-4 py-2 flex flex-col gap-1">
             <NavLink to="/" end onClick={closeMobile} className={mobileNavLinkClass}>
               Ara
+            </NavLink>
+            <NavLink to="/discover" onClick={closeMobile} className={mobileNavLinkClass}>
+              Ne İzlesem?
             </NavLink>
             <CategoryMenu onNavigate={closeMobile} />
             <NavLink to="/profile" onClick={closeMobile} className={mobileNavLinkClass}>

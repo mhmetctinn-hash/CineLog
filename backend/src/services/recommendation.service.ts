@@ -1,5 +1,5 @@
 import { pool } from "../config/db";
-import { discoverMoviesByGenre, getMovieRecommendations, type TmdbListItem } from "./tmdb.service";
+import { discoverMoviesByGenre, getMovieRecommendations, getPopularMovies, type TmdbListItem } from "./tmdb.service";
 
 export interface Recommendation {
   tmdbId: number;
@@ -93,4 +93,124 @@ export async function getRecommendationsForUser(userId: string): Promise<Recomme
     voteAverage: item.vote_average,
     reason,
   }));
+}
+
+async function getWatchedAndWatchlistIds(userId: string): Promise<Set<number>> {
+  const { rows } = await pool.query<{ tmdb_id: number }>(
+    `SELECT movies.tmdb_id FROM movie_logs JOIN movies ON movies.id = movie_logs.movie_id WHERE movie_logs.user_id = $1
+     UNION
+     SELECT movies.tmdb_id FROM watchlist JOIN movies ON movies.id = watchlist.movie_id WHERE watchlist.user_id = $1`,
+    [userId],
+  );
+  return new Set(rows.map((r) => r.tmdb_id));
+}
+
+// "Bugün ne izlesem?" — dice roll: prefers the user's own watchlist (they already
+// chose these), falls back to their personalized recommendations, then to
+// TMDB's popular list for brand-new users with no history at all.
+export async function getDiceRoll(userId: string): Promise<Recommendation | null> {
+  const { rows: watchlistRows } = await pool.query<{ tmdb_id: number; title: string; poster_path: string | null }>(
+    `SELECT movies.tmdb_id, movies.title, movies.poster_path
+     FROM watchlist JOIN movies ON movies.id = watchlist.movie_id
+     WHERE watchlist.user_id = $1`,
+    [userId],
+  );
+
+  if (watchlistRows.length > 0) {
+    const pick = watchlistRows[Math.floor(Math.random() * watchlistRows.length)];
+    return {
+      tmdbId: pick.tmdb_id,
+      title: pick.title,
+      posterPath: pick.poster_path,
+      voteAverage: 0,
+      reason: "İzleme listenden zar attık",
+    };
+  }
+
+  const recs = await getRecommendationsForUser(userId);
+  if (recs.length > 0) {
+    return recs[Math.floor(Math.random() * recs.length)];
+  }
+
+  try {
+    const excludeIds = await getWatchedAndWatchlistIds(userId);
+    const popular = ((await getPopularMovies()).results ?? []).filter((item) => !excludeIds.has(item.id));
+    if (popular.length === 0) return null;
+    const pick = popular[Math.floor(Math.random() * popular.length)];
+    return {
+      tmdbId: pick.id,
+      title: pick.title,
+      posterPath: pick.poster_path,
+      voteAverage: pick.vote_average,
+      reason: "Popüler filmlerden zar attık",
+    };
+  } catch {
+    return null;
+  }
+}
+
+const MOOD_GENRES: Record<string, number> = {
+  action: 28,
+  cozy: 35,
+  emotional: 18,
+  thrill: 53,
+};
+
+const MOOD_LABELS: Record<string, string> = {
+  action: "Aksiyon & Macera",
+  cozy: "Komedi & Keyifli",
+  emotional: "Dram & Duygusal",
+  thrill: "Gerilim & Gizem",
+};
+
+const PACE_GENRES: Record<string, number> = {
+  fast: 12, // Adventure — layered onto the mood genre for a faster-paced pick
+  calm: 10749, // Romance — layered on for a slower, softer pick
+};
+
+const PACE_LABELS: Record<string, string> = {
+  fast: "hızlı tempolu",
+  calm: "sakin ve rahatlatıcı",
+};
+
+export const MOOD_OPTIONS = Object.keys(MOOD_GENRES);
+export const PACE_OPTIONS = Object.keys(PACE_GENRES);
+
+// The quiz's second question ("mood-quiz" — question generation is a fixed,
+// pre-written pair rather than an LLM, since there's no AI in this project).
+export async function getMoodRecommendations(
+  userId: string,
+  mood: string,
+  pace?: string,
+): Promise<Recommendation[]> {
+  const genreId = MOOD_GENRES[mood];
+  if (!genreId) return [];
+
+  const excludeIds = await getWatchedAndWatchlistIds(userId);
+  const paceGenre = pace ? PACE_GENRES[pace] : undefined;
+
+  let discovered: TmdbListItem[] = [];
+  try {
+    if (paceGenre) {
+      discovered = (await discoverMoviesByGenre(`${genreId},${paceGenre}`)).results ?? [];
+    }
+    if (discovered.length < 6) {
+      discovered = (await discoverMoviesByGenre(genreId)).results ?? [];
+    }
+  } catch {
+    return [];
+  }
+
+  const reasonParts = [MOOD_LABELS[mood], pace ? PACE_LABELS[pace] : null].filter(Boolean).join(", ");
+
+  return discovered
+    .filter((item) => !excludeIds.has(item.id))
+    .slice(0, 8)
+    .map((item) => ({
+      tmdbId: item.id,
+      title: item.title,
+      posterPath: item.poster_path,
+      voteAverage: item.vote_average,
+      reason: `${reasonParts} tercihine göre`,
+    }));
 }
