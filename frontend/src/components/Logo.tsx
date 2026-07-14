@@ -3,33 +3,42 @@ import { Link } from 'react-router-dom';
 export function Logo() {
   return (
     <Link to="/" className="logo-mark group flex items-center gap-2 select-none">
-      <span className="relative inline-block w-11 h-11 shrink-0 rounded-[11px] bg-[#151827] flex items-center justify-center">
-        <svg viewBox="0 0 56 56" className="w-[78%] h-[78%] overflow-visible">
+      <span className="relative inline-block w-12 h-12 shrink-0 rounded-[12px] bg-[#151827] flex items-center justify-center">
+        <svg viewBox="0 0 56 56" className="w-[92%] h-[92%] overflow-visible">
           <defs>
             <linearGradient id="markGrad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#e0a23c" />
               <stop offset="1" stopColor="#4a1942" />
             </linearGradient>
-            <linearGradient id="iconSheen" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="#fff" stopOpacity="0" />
-              <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
-              <stop offset="1" stopColor="#fff" stopOpacity="0" />
+            <linearGradient id="vGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#8c3d6e" />
+              <stop offset="1" stopColor="#4a1942" />
             </linearGradient>
-            <clipPath id="svClip">
-              <path d="M12,16 L24,40 L36,16 L36,16 L36,20 L24,44 L12,20 Z" />
-              <path d="M28,20 L38,36 L48,20 L48,20 L48,24 L38,40 L28,24 Z" />
-            </clipPath>
+            {/* highlight band baked into the same gradient the strokes are painted with,
+                so it always lands exactly on the letterforms — no clip-path drift */}
+            <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+              <stop offset="0" stopColor="#fff" stopOpacity="0" />
+              <stop offset="0.5" stopColor="#fff" stopOpacity="0.85" />
+              <stop offset="1" stopColor="#fff" stopOpacity="0" />
+              <animateTransform
+                attributeName="gradientTransform"
+                type="translate"
+                values="-1 0; 1 0; 1 0"
+                keyTimes="0; 0.55; 1"
+                dur="4.5s"
+                repeatCount="indefinite"
+              />
+            </linearGradient>
           </defs>
 
           {/* S */}
-          <path d="M12,16 L24,40 L36,16" fill="none" stroke="url(#markGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M10,15 L24,41 L38,15" fill="none" stroke="url(#markGrad)" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
           {/* V */}
-          <path d="M28,20 L38,36 L48,20" fill="none" stroke="#6b2456" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M26,20 L39,38 L52,20" fill="none" stroke="url(#vGrad)" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
 
-          {/* travelling sheen, confined to the S+V strokes */}
-          <g clipPath="url(#svClip)">
-            <rect className="icon-shimmer" x="-24" y="0" width="24" height="56" fill="url(#iconSheen)" />
-          </g>
+          {/* sheen overlay, same paths, painted with the sliding highlight gradient */}
+          <path d="M10,15 L24,41 L38,15" fill="none" stroke="url(#sheenGrad)" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M26,20 L39,38 L52,20" fill="none" stroke="url(#sheenGrad)" strokeWidth="7.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
 
