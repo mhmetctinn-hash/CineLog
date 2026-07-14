@@ -140,7 +140,7 @@ export function TvDetail() {
 
         {trailer && (
           <div className="mt-4">
-            <div className="aspect-video w-full max-w-xl rounded-lg overflow-hidden bg-black">
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
               <iframe
                 src={youtubeEmbedUrl(trailer.key)}
                 title={trailer.name}
