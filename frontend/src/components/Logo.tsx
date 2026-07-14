@@ -3,37 +3,32 @@ import { Link } from 'react-router-dom';
 export function Logo() {
   return (
     <Link to="/" className="logo-mark group flex items-center gap-2 select-none">
-      <span className="relative inline-block w-7 h-8 shrink-0">
-        <svg viewBox="0 0 72 84" className="w-full h-full overflow-visible">
+      <span className="relative inline-block w-8 h-8 shrink-0 rounded-[9px] bg-[#151827] flex items-center justify-center">
+        <svg viewBox="0 0 56 56" className="w-[70%] h-[70%] overflow-visible">
           <defs>
-            <linearGradient id="markBordo" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#8c2a46" />
-              <stop offset="1" stopColor="#551b31" />
+            <linearGradient id="markGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#e0a23c" />
+              <stop offset="1" stopColor="#4a1942" />
             </linearGradient>
-            <linearGradient id="markBlue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#4c86e0" />
-              <stop offset="1" stopColor="#1c4f9c" />
-            </linearGradient>
-            {/* bookmark silhouette: rounded top, notch at the bottom */}
-            <clipPath id="bookmarkClip">
-              <path d="M8,14 Q8,2 20,2 L52,2 Q64,2 64,14 L64,80 L36,62 L8,80 Z" />
-            </clipPath>
             <linearGradient id="iconSheen" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" stopColor="#fff" stopOpacity="0" />
               <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
               <stop offset="1" stopColor="#fff" stopOpacity="0" />
             </linearGradient>
+            <clipPath id="svClip">
+              <path d="M12,16 L24,40 L36,16 L36,16 L36,20 L24,44 L12,20 Z" />
+              <path d="M28,20 L38,36 L48,20 L48,20 L48,24 L38,40 L28,24 Z" />
+            </clipPath>
           </defs>
 
-          <g clipPath="url(#bookmarkClip)">
-            {/* bordo half, left */}
-            <rect x="0" y="0" width="42" height="84" fill="url(#markBordo)" />
-            {/* blue half, right, diagonal seam */}
-            <polygon points="42,0 72,0 72,84 30,84" fill="url(#markBlue)" />
-            {/* play triangle */}
-            <polygon points="27,30 27,54 47,42" fill="#ede6d8" />
-            {/* travelling sheen */}
-            <rect className="icon-shimmer" x="-24" y="0" width="24" height="84" fill="url(#iconSheen)" />
+          {/* S */}
+          <path d="M12,16 L24,40 L36,16" fill="none" stroke="url(#markGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          {/* V */}
+          <path d="M28,20 L38,36 L48,20" fill="none" stroke="#6b2456" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+
+          {/* travelling sheen, confined to the S+V strokes */}
+          <g clipPath="url(#svClip)">
+            <rect className="icon-shimmer" x="-24" y="0" width="24" height="56" fill="url(#iconSheen)" />
           </g>
         </svg>
       </span>

@@ -4,24 +4,14 @@
       <stop offset="0%" stop-color="#0f1c33"/>
       <stop offset="100%" stop-color="#050a14"/>
     </linearGradient>
-    <linearGradient id="markBordo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8c2a46"/>
-      <stop offset="1" stop-color="#551b31"/>
+    <linearGradient id="markGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0a23c"/>
+      <stop offset="1" stop-color="#4a1942"/>
     </linearGradient>
-    <linearGradient id="markBlue" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4c86e0"/>
-      <stop offset="1" stop-color="#1c4f9c"/>
-    </linearGradient>
-    <clipPath id="bookmarkClip">
-      <path d="M116,124 Q116,60 180,60 L332,60 Q396,60 396,124 L396,460 L256,368 L116,460 Z"/>
-    </clipPath>
   </defs>
 
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
 
-  <g clip-path="url(#bookmarkClip)">
-    <rect x="60" y="60" width="196" height="400" fill="url(#markBordo)"/>
-    <polygon points="256,60 452,60 452,460 200,460" fill="url(#markBlue)"/>
-    <polygon points="222,182 222,326 322,254" fill="#ede6d8"/>
-  </g>
+  <path d="M110,144 L216,360 L322,144" fill="none" stroke="url(#markGrad)" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M250,178 L340,322 L430,178" fill="none" stroke="#6b2456" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
