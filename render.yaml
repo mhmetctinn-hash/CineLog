@@ -24,6 +24,26 @@ services:
         value: https://api.themoviedb.org/3
       - key: SENTRY_DSN
         sync: false
+      - key: ADMIN_EMAIL
+        value: mhmetctinn@gmail.com
+      - key: APP_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
 
   - type: web
     name: cinelog-frontend
