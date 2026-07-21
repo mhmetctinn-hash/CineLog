@@ -1,6 +1,24 @@
 export interface User {
   email: string;
   avatarUrl: string | null;
+  isAdmin: boolean;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  avatar_url: string | null;
+  created_at: string;
+  movie_log_count: number;
+  tv_log_count: number;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  totalMovieLogs: number;
+  totalTvLogs: number;
+  totalWatchlistItems: number;
+  signupsLast30Days: number;
 }
 
 export interface TmdbMovieSummary {

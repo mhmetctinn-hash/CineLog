@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { env } from "../config/env";
+import { isAdminEmail } from "../middleware/requireAdmin";
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
@@ -54,7 +55,7 @@ export async function register(req: Request, res: Response) {
   try {
     const token = await registerUser(parsed.data.email, parsed.data.password);
     res.cookie("token", token, COOKIE_OPTIONS);
-    return res.status(201).json({ email: parsed.data.email, avatarUrl: null });
+    return res.status(201).json({ email: parsed.data.email, avatarUrl: null, isAdmin: isAdminEmail(parsed.data.email) });
   } catch (err) {
     if (err instanceof EmailAlreadyRegisteredError) {
       return res.status(409).json({ error: err.message });
@@ -74,7 +75,7 @@ export async function login(req: Request, res: Response) {
     res.cookie("token", token, COOKIE_OPTIONS);
     const { userId } = verifyToken(token);
     const user = await getUserById(userId);
-    return res.json({ email: parsed.data.email, avatarUrl: user?.avatar_url ?? null });
+    return res.json({ email: parsed.data.email, avatarUrl: user?.avatar_url ?? null, isAdmin: isAdminEmail(parsed.data.email) });
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
       return res.status(401).json({ error: err.message });
@@ -117,7 +118,7 @@ export async function logout(_req: Request, res: Response) {
 
 export async function me(req: Request, res: Response) {
   const user = await getUserById(req.auth!.userId);
-  return res.json({ email: req.auth!.email, avatarUrl: user?.avatar_url ?? null });
+  return res.json({ email: req.auth!.email, avatarUrl: user?.avatar_url ?? null, isAdmin: isAdminEmail(req.auth!.email) });
 }
 
 export async function setAvatar(req: Request, res: Response) {

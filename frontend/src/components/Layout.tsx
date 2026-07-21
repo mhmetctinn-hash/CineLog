@@ -47,6 +47,11 @@ export function Layout() {
                 <NavLink to="/stats" className={navLinkClass}>
                   İstatistik
                 </NavLink>
+                {user.isAdmin && (
+                  <NavLink to="/admin" className={navLinkClass}>
+                    Yönetim
+                  </NavLink>
+                )}
                 <ProfileMenu />
               </nav>
 
@@ -91,6 +96,11 @@ export function Layout() {
             <NavLink to="/stats" onClick={closeMobile} className={mobileNavLinkClass}>
               İstatistik
             </NavLink>
+            {user.isAdmin && (
+              <NavLink to="/admin" onClick={closeMobile} className={mobileNavLinkClass}>
+                Yönetim
+              </NavLink>
+            )}
           </nav>
         )}
       </header>

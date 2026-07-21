@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import { ForgotPassword } from './pages/Auth/ForgotPassword';
@@ -14,6 +15,7 @@ import { Stats } from './pages/Stats/Stats';
 import { Category } from './pages/Category/Category';
 import { TvDetail } from './pages/TvDetail/TvDetail';
 import { Discover } from './pages/Discover/Discover';
+import { Admin } from './pages/Admin/Admin';
 
 function App() {
   return (
@@ -33,6 +35,9 @@ function App() {
           <Route path="/map" element={<MovieMap />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/category/:mediaType/:genreId" element={<Category />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
