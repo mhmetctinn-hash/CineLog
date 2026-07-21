@@ -4,16 +4,28 @@ import { env } from "../config/env";
 import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
+  InvalidResetTokenError,
   getUserById,
   loginUser,
   registerUser,
   removeAvatar,
+  requestPasswordReset,
+  resetPassword,
   updateAvatar,
   verifyToken,
 } from "../services/auth.service";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1),
   password: z.string().min(8),
 });
 
@@ -66,6 +78,33 @@ export async function login(req: Request, res: Response) {
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
       return res.status(401).json({ error: err.message });
+    }
+    throw err;
+  }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  const parsed = forgotPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  await requestPasswordReset(parsed.data.email);
+  return res.status(204).send();
+}
+
+export async function performPasswordReset(req: Request, res: Response) {
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  try {
+    await resetPassword(parsed.data.token, parsed.data.password);
+    return res.status(204).send();
+  } catch (err) {
+    if (err instanceof InvalidResetTokenError) {
+      return res.status(400).json({ error: err.message });
     }
     throw err;
   }

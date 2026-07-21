@@ -3,6 +3,8 @@ import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
+import { ForgotPassword } from './pages/Auth/ForgotPassword';
+import { ResetPassword } from './pages/Auth/ResetPassword';
 import { Search } from './pages/Search/Search';
 import { MovieDetail } from './pages/MovieDetail/MovieDetail';
 import { Profile } from './pages/Profile/Profile';
@@ -19,6 +21,8 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Search />} />
           <Route path="/discover" element={<Discover />} />

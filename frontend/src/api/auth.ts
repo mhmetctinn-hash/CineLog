@@ -10,4 +10,7 @@ export const authApi = {
   me: () => api.get<User>('/auth/me'),
   updateAvatar: (avatarUrl: string) => api.put<{ avatarUrl: string }>('/auth/avatar', { avatarUrl }),
   removeAvatar: () => api.delete<void>('/auth/avatar'),
+  forgotPassword: (email: string) => api.post<void>('/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post<void>('/auth/reset-password', { token, password }),
 };

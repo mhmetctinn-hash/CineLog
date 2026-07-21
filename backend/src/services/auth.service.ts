@@ -1,11 +1,14 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/db";
 import { env } from "../config/env";
+import { sendPasswordResetEmail } from "./email.service";
 import type { AuthPayload, User } from "../types/user";
 
 const SALT_ROUNDS = 12;
 const TOKEN_EXPIRY = "7d";
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000;
 
 export class EmailAlreadyRegisteredError extends Error {
   constructor() {
@@ -16,6 +19,12 @@ export class EmailAlreadyRegisteredError extends Error {
 export class InvalidCredentialsError extends Error {
   constructor() {
     super("Invalid email or password");
+  }
+}
+
+export class InvalidResetTokenError extends Error {
+  constructor() {
+    super("Invalid or expired reset token");
   }
 }
 
@@ -61,6 +70,50 @@ export async function updateAvatar(userId: string, avatarUrl: string): Promise<v
 
 export async function removeAvatar(userId: string): Promise<void> {
   await pool.query("UPDATE users SET avatar_url = NULL WHERE id = $1", [userId]);
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  const result = await pool.query<User>("SELECT id FROM users WHERE email = $1", [email]);
+  const user = result.rows[0];
+  if (!user) {
+    return;
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = hashResetToken(rawToken);
+  const expires = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+
+  await pool.query("UPDATE users SET reset_token_hash = $1, reset_token_expires = $2 WHERE id = $3", [
+    tokenHash,
+    expires,
+    user.id,
+  ]);
+
+  const resetUrl = `${env.appUrl}/reset-password?token=${rawToken}`;
+  await sendPasswordResetEmail(email, resetUrl);
+}
+
+export async function resetPassword(rawToken: string, newPassword: string): Promise<void> {
+  const tokenHash = hashResetToken(rawToken);
+  const result = await pool.query<User>(
+    "SELECT id, reset_token_expires FROM users WHERE reset_token_hash = $1",
+    [tokenHash],
+  );
+  const user = result.rows[0];
+
+  if (!user || !user.reset_token_expires || new Date(user.reset_token_expires) < new Date()) {
+    throw new InvalidResetTokenError();
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await pool.query(
+    "UPDATE users SET password_hash = $1, reset_token_hash = NULL, reset_token_expires = NULL WHERE id = $2",
+    [passwordHash, user.id],
+  );
+}
+
+function hashResetToken(rawToken: string): string {
+  return crypto.createHash("sha256").update(rawToken).digest("hex");
 }
 
 function signToken(payload: AuthPayload): string {
