@@ -7,6 +7,7 @@ import { requireAuth } from "./middleware/requireAuth";
 import { apiLimiter, authLimiter } from "./middleware/rateLimit";
 import { authRouter } from "./routes/auth.routes";
 import { adminRouter } from "./routes/admin.routes";
+import { internalRouter } from "./routes/internal.routes";
 import { logRouter } from "./routes/log.routes";
 import { notificationRouter } from "./routes/notification.routes";
 import { pushRouter } from "./routes/push.routes";
@@ -38,6 +39,7 @@ app.use("/api/tv", tvRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/push", pushRouter);
+app.use("/api/internal", internalRouter);
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ email: req.auth?.email });

@@ -1,0 +1,24 @@
+name: Run notification jobs
+
+# Render's free plan spins the backend down after 15 minutes idle, so the
+# in-process node-cron schedule (backend/src/jobs/notificationJobs.ts) can't
+# be relied on to fire. This workflow hits a secret-protected endpoint
+# instead, which both wakes the service up and runs the daily watchlist
+# reminder + "what to watch today" jobs. Requires a repo secret CRON_SECRET
+# matching the backend's CRON_SECRET env var (see render.yaml).
+on:
+  schedule:
+    # 10:00 Europe/Istanbul (UTC+3, no DST) — after both jobs' original times
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call run-jobs endpoint
+        run: |
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            https://cinelog-backend-ouzz.onrender.com/api/internal/run-jobs

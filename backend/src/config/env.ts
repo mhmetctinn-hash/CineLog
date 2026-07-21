@@ -19,4 +19,5 @@ export const env = {
   vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
   vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:no-reply@cinelog.app",
   enableScheduledJobs: process.env.ENABLE_SCHEDULED_JOBS !== "false",
+  cronSecret: process.env.CRON_SECRET ?? "",
 };
