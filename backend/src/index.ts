@@ -4,6 +4,7 @@ initSentry();
 
 import { app } from "./app";
 import { env } from "./config/env";
+import { startNotificationJobs } from "./jobs/notificationJobs";
 
 process.on("unhandledRejection", (reason) => {
   Sentry.captureException(reason);
@@ -18,3 +19,5 @@ process.on("uncaughtException", (err) => {
 app.listen(env.port, () => {
   console.log(`SineVA backend listening on port ${env.port}`);
 });
+
+startNotificationJobs();

@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CategoryMenu } from './CategoryMenu';
 import { Logo } from './Logo';
+import { NotificationBell } from './NotificationBell';
 import { ProfileMenu } from './ProfileMenu';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -52,10 +53,12 @@ export function Layout() {
                     Yönetim
                   </NavLink>
                 )}
+                <NotificationBell />
                 <ProfileMenu />
               </nav>
 
               <div className="flex md:hidden items-center gap-1">
+                <NotificationBell />
                 <ProfileMenu />
                 <button
                   onClick={() => setMobileOpen((v) => !v)}

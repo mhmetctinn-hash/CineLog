@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { pool } from "../config/db";
 import { env } from "../config/env";
 import { sendPasswordResetEmail } from "./email.service";
+import { createNotification } from "./notification.service";
+import { sendPushToUser } from "./push.service";
 import type { AuthPayload, User } from "../types/user";
 
 const SALT_ROUNDS = 12;
@@ -110,6 +112,14 @@ export async function resetPassword(rawToken: string, newPassword: string): Prom
     "UPDATE users SET password_hash = $1, reset_token_hash = NULL, reset_token_expires = NULL WHERE id = $2",
     [passwordHash, user.id],
   );
+
+  const notification = await createNotification({
+    userId: user.id,
+    type: "system",
+    title: "Şifren değiştirildi",
+    body: "Hesabının şifresi az önce sıfırlama bağlantısıyla güncellendi. Bu sen değilsen hemen şifreni tekrar değiştir.",
+  });
+  await sendPushToUser(user.id, { title: notification.title, body: notification.body ?? undefined });
 }
 
 function hashResetToken(rawToken: string): string {

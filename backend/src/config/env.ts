@@ -15,4 +15,8 @@ export const env = {
   smtpPass: process.env.SMTP_PASS ?? "",
   smtpFrom: process.env.SMTP_FROM ?? "Cinelog <no-reply@cinelog.app>",
   adminEmail: process.env.ADMIN_EMAIL ?? "",
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
+  vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:no-reply@cinelog.app",
+  enableScheduledJobs: process.env.ENABLE_SCHEDULED_JOBS !== "false",
 };

@@ -13,6 +13,19 @@ export interface AdminUser {
   tv_log_count: number;
 }
 
+export type NotificationType = 'system' | 'watchlist_reminder' | 'daily_recommendation';
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  url: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
 export interface AdminStats {
   totalUsers: number;
   totalMovieLogs: number;
