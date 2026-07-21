@@ -4,6 +4,7 @@ import { logsApi } from '../../api/logs';
 import { tvApi } from '../../api/tv';
 import { MovieCard } from '../../components/MovieCard';
 import { StarRating } from '../../components/StarRating';
+import { ImportExport } from '../../components/ImportExport';
 import type { LogStatus } from '../../api/types';
 
 type SortOption = 'date_desc' | 'date_asc' | 'rating_desc' | 'rating_asc';
@@ -134,6 +135,8 @@ export function Profile() {
   return (
     <div>
       <h1 className="text-2xl lg:text-3xl font-semibold text-highlight mb-4">İzlediklerim</h1>
+
+      <ImportExport />
 
       <div className="flex gap-2 mb-4">
         {(['movie', 'tv'] as Mode[]).map((m) => (

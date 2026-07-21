@@ -33,4 +33,6 @@ export const logsApi = {
   update: (id: string, input: UpdateLogInput) => api.put<MovieLog>(`/logs/${id}`, input),
   remove: (id: string) => api.delete<void>(`/logs/${id}`),
   stats: () => api.get<LogStats>('/logs/stats'),
+  importLetterboxd: (csv: string) =>
+    api.post<{ imported: number; duplicates: number; notFound: string[] }>('/logs/import', { csv }),
 };

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { createLog, deleteLog, getStats, listLogs, listLogsPage, updateLog } from "../services/log.service";
+import { exportLogsCsv, importLetterboxdCsv } from "../services/exportImport.service";
 
 const logStatusSchema = z.enum(["watched", "dropped"]);
 
@@ -85,4 +86,29 @@ export async function remove(req: Request, res: Response) {
     return res.status(404).json({ error: "Log not found" });
   }
   return res.status(204).send();
+}
+
+export async function exportCsv(req: Request, res: Response) {
+  const csv = await exportLogsCsv(req.auth!.userId);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="sineva-export-${new Date().toISOString().slice(0, 10)}.csv"`);
+  return res.send(csv);
+}
+
+const importCsvSchema = z.object({
+  csv: z.string().min(1).max(2_000_000),
+});
+
+export async function importCsv(req: Request, res: Response) {
+  const parsed = importCsvSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  try {
+    const result = await importLetterboxdCsv(req.auth!.userId, parsed.data.csv);
+    return res.json(result);
+  } catch (err) {
+    return res.status(400).json({ error: err instanceof Error ? err.message : "Import failed" });
+  }
 }
